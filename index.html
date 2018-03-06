@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <link rel="stylesheet" type="text/css" href="./dist/Chatroom.css">
+    <title>Demo</title>
+</head>
+<body>
+    <div class="container"></div>
+    <script src="./dist/Chatroom.js"></script>
+    <script type="text/javascript">
+        var chatroom = window.SimpleChatroom({
+            host: "http://localhost:5002",
+            title: "Chat with Mike",
+            container: document.querySelector(".container"),
+        });
+    </script>
+</body>
+</html>

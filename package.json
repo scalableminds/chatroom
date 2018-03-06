@@ -1,0 +1,19 @@
+{
+  "name": "simple-chatroom",
+  "version": "0.1.0",
+  "private": true,
+  "dependencies": {
+    "babel-polyfill": "^6.26.0",
+    "react": "^15.6.1",
+    "react-dom": "^15.6.1"
+  },
+  "devDependencies": {
+    "babel-preset-env": "^1.6.1",
+    "babel-preset-react": "^6.24.1",
+    "parcel-bundler": "^1.6.2"
+  },
+  "scripts": {
+    "build": "parcel build src/Chatroom.js",
+    "watch": "parcel watch src/Chatroom.js"
+  }
+}
