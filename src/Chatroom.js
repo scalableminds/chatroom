@@ -30,8 +30,9 @@ const Message = ({ chat, user }) => {
           paragraph: ({ children }) => <span>{children}</span>
         }}
         plugins={[breaks]}
+        options={{ linkTarget: "_blank" }}
       />
-      <span className="time" title={`${chat.time}Z`}>
+      <span className="time" title={new Date(messageTime).toISOString()}>
         {moment(messageTime).fromNow()}
       </span>
     </li>
@@ -51,7 +52,8 @@ class Chatroom extends React.Component {
       isOpen: false
     };
 
-    this.submitMessage = this.submitMessage.bind(this);
+    this.handleSubmitMessage = this.handleSubmitMessage.bind(this);
+    this.handleToggleChat = this.handleToggleChat.bind(this);
     this._isMounted = false;
     this.lastRendered = 0;
   }
@@ -114,7 +116,18 @@ class Chatroom extends React.Component {
     }
   }
 
-  async submitMessage(e) {
+  handleToggleChat(e) {
+    if (window.ga != null) {
+      if (this.state.isOpen) {
+        window.ga("send", "event", "chat", "chat-close");
+      } else {
+        window.ga("send", "event", "chat", "chat-open");
+      }
+    }
+    this.setState({ isOpen: !this.state.isOpen });
+  }
+
+  async handleSubmitMessage(e) {
     e.preventDefault();
 
     const message = ReactDOM.findDOMNode(this.refs.msg).value.trim();
@@ -129,6 +142,10 @@ class Chatroom extends React.Component {
     await this.fetchMessages();
 
     ReactDOM.findDOMNode(this.refs.msg).value = "";
+
+    if (window.ga != null) {
+      window.ga("send", "event", "chat", "chat-message-sent");
+    }
   }
 
   render() {
@@ -137,19 +154,13 @@ class Chatroom extends React.Component {
 
     return (
       <div className={chatroomClassName}>
-        <h3
-          onClick={() => {
-            this.setState({ isOpen: !isOpen });
-          }}
-        >
-          {this.props.title}
-        </h3>
+        <h3 onClick={this.handleToggleChat}>{this.props.title}</h3>
         <ul className="chats" ref="chats">
           {messages.map((chat, i) => (
             <Message chat={chat} user={this.props.cid} key={i} />
           ))}
         </ul>
-        <form className="input" onSubmit={e => this.submitMessage(e)}>
+        <form className="input" onSubmit={e => this.handleSubmitMessage(e)}>
           <input type="text" ref="msg" />
           <input type="submit" value="Submit" />
         </form>
