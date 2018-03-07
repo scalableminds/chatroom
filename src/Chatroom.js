@@ -27,10 +27,14 @@ const Message = ({ chat, user }) => {
           "image"
         ]}
         renderers={{
-          paragraph: ({ children }) => <span>{children}</span>
+          paragraph: ({ children }) => <span>{children}</span>,
+          link: ({ href, children }) => (
+            <a href={href} target="_blank">
+              {children}
+            </a>
+          )
         }}
         plugins={[breaks]}
-        options={{ linkTarget: "_blank" }}
       />
       <span className="time" title={new Date(messageTime).toISOString()}>
         {moment(messageTime).fromNow()}
@@ -65,7 +69,9 @@ class Chatroom extends React.Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    this.scrollToBot();
+    if (!isEqual(prevState.messages, this.state.messages)) {
+      this.scrollToBot();
+    }
     if (!prevState.isOpen && this.state.isOpen) {
       this.fetchMessages();
       this.focusInput();
