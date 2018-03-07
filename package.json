@@ -14,7 +14,8 @@
   },
   "scripts": {
     "build": "parcel build src/Chatroom.js",
-    "watch": "parcel watch src/Chatroom.js"
+    "watch": "parcel watch src/Chatroom.js",
+    "prepublish": "yarn build"
   },
   "main": "dist/Chatroom.js"
 }
