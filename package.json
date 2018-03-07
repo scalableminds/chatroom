@@ -4,8 +4,12 @@
   "license": "MIT",
   "dependencies": {
     "babel-polyfill": "^6.26.0",
+    "lodash.isequal": "^4.5.0",
+    "moment": "^2.21.0",
     "react": "^15.6.1",
-    "react-dom": "^15.6.1"
+    "react-dom": "^15.6.1",
+    "react-markdown": "^3.3.0",
+    "remark-breaks": "^1.0.0"
   },
   "devDependencies": {
     "babel-preset-env": "^1.6.1",

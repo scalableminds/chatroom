@@ -1,17 +1,42 @@
 import "babel-polyfill";
 import React from "react";
 import ReactDOM from "react-dom";
+import Markdown from "react-markdown";
+import breaks from "remark-breaks";
+import moment from "moment";
+import isEqual from "lodash.isequal";
+
 import "./Chatroom.css";
 
-const Message = ({ chat, user }) => (
-  <li className={`chat ${user === chat.username ? "right" : "left"}`}>
-    {chat.img != null && (
-      <img src={chat.img} alt={`${chat.username}'s profile pic`} />
-    )}
-    {chat.message.text}
-    <span className="time">{chat.time}</span>
-  </li>
-);
+const Message = ({ chat, user }) => {
+  const messageTime = Math.min(Date.now(), Date.parse(`${chat.time}Z`));
+  return (
+    <li className={`chat ${user === chat.username ? "right" : "left"}`}>
+      <Markdown
+        source={chat.message.text}
+        skipHtml={false}
+        allowedTypes={[
+          "root",
+          "break",
+          "paragraph",
+          "emphasis",
+          "strong",
+          "link",
+          "list",
+          "listItem",
+          "image"
+        ]}
+        renderers={{
+          paragraph: ({ children }) => <span>{children}</span>
+        }}
+        plugins={[breaks]}
+      />
+      <span className="time" title={`${chat.time}Z`}>
+        {moment(messageTime).fromNow()}
+      </span>
+    </li>
+  );
+};
 
 function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
@@ -28,6 +53,7 @@ class Chatroom extends React.Component {
 
     this.submitMessage = this.submitMessage.bind(this);
     this._isMounted = false;
+    this.lastRendered = 0;
   }
 
   componentDidMount() {
@@ -36,8 +62,21 @@ class Chatroom extends React.Component {
     this.poll();
   }
 
-  componentDidUpdate() {
+  componentDidUpdate(prevProps, prevState) {
     this.scrollToBot();
+    if (!prevState.isOpen && this.state.isOpen) {
+      this.fetchMessages();
+      this.focusInput();
+    }
+    this.lastRendered = Date.now();
+  }
+
+  shouldComponentUpdate(nextProps, nextState) {
+    return (
+      !isEqual(nextProps, this.props) ||
+      !isEqual(nextState, this.state) ||
+      Date.now() > this.lastRendered + 10000
+    );
   }
 
   componentWillUnmount() {
@@ -50,20 +89,24 @@ class Chatroom extends React.Component {
     ).scrollHeight;
   }
 
+  focusInput() {
+    ReactDOM.findDOMNode(this.refs.msg).focus();
+  }
+
   async fetchMessages() {
     const res = await fetch(
       `${this.props.host}/conversations/${this.props.cid}/log`
     );
     const messages = await res.json();
-    if (JSON.stringify(messages) !== JSON.stringify(this.state.messages)) {
-      this.setState({ messages });
-    }
+    this.setState({ messages });
   }
 
   async poll() {
     while (this._isMounted) {
       try {
-        await this.fetchMessages();
+        if (this.state.isOpen) {
+          await this.fetchMessages();
+        }
       } catch (err) {
         // pass
       }
@@ -78,7 +121,11 @@ class Chatroom extends React.Component {
 
     if (message === "") return;
 
-    await fetch(`${this.props.host}/conversations/${this.props.cid}/say?message=${encodeURI(ReactDOM.findDOMNode(this.refs.msg).value)}`);
+    await fetch(
+      `${this.props.host}/conversations/${
+        this.props.cid
+      }/say?message=${encodeURI(ReactDOM.findDOMNode(this.refs.msg).value)}`
+    );
     await this.fetchMessages();
 
     ReactDOM.findDOMNode(this.refs.msg).value = "";
