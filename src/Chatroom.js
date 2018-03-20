@@ -8,14 +8,25 @@ import isEqual from "lodash.isequal";
 
 import "./Chatroom.css";
 
+function parseMessage(message) {
+  switch (message.type) {
+    case "text":
+      return message.text;
+    case "image":
+      return `![](${message.image})`;
+    default:
+      return "";
+  }
+}
+
 const Message = ({ chat, user }) => {
   const messageTime = Math.min(Date.now(), Date.parse(`${chat.time}Z`));
   return (
     <li className={`chat ${user === chat.username ? "right" : "left"}`}>
       <Markdown
-        source={chat.message.text}
+        source={parseMessage(chat.message)}
         skipHtml={false}
-        allowedTypes={[
+        allowedTypses={[
           "root",
           "break",
           "paragraph",
