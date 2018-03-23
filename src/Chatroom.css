@@ -93,11 +93,10 @@
   padding: 0;
   font-size: 14px;
   list-style: none;
-  float: left;
   clear: both;
   margin: 10px 0;
   margin-bottom: 30px;
-  max-width: 90%;
+  text-align: center;
 }
 
 .chatroom .chats .chat-buttons .chat-button {
@@ -107,8 +106,7 @@
   cursor: pointer;
   border-radius: 3px;
   border: 1px solid black;
-  margin: 3px 0;
-  margin-right: 3px;
+  margin: 3px;
   padding: 10px;
 }
 .chatroom .chats .chat-buttons .chat-button:hover {
