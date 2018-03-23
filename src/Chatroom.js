@@ -8,45 +8,62 @@ import isEqual from "lodash.isequal";
 
 import "./Chatroom.css";
 
-function parseMessage(message) {
+function parseMessage(message, onButtonClick) {
   switch (message.type) {
     case "text":
-      return message.text;
+      return (
+        <Markdown
+          source={message.text}
+          skipHtml={false}
+          allowedTypses={[
+            "root",
+            "break",
+            "paragraph",
+            "emphasis",
+            "strong",
+            "link",
+            "list",
+            "listItem",
+            "image"
+          ]}
+          renderers={{
+            paragraph: ({ children }) => <span>{children}</span>,
+            link: ({ href, children }) => (
+              <a href={href} target="_blank">
+                {children}
+              </a>
+            )
+          }}
+          plugins={[breaks]}
+        />
+      );
     case "image":
-      return `![](${message.image})`;
+      return <img src={message.image} alt="" />;
     default:
       return "";
   }
 }
 
-const Message = ({ chat, user }) => {
+const Message = ({ chat, user, onButtonClick }) => {
+  if (chat.message.type === "button") {
+    return (
+      <ul className="chat-buttons">
+        {chat.message.buttons.map(({ payload, title }) => (
+          <li
+            className="chat-button"
+            key={payload}
+            onClick={() => onButtonClick(payload)}
+          >
+            {title}
+          </li>
+        ))}
+      </ul>
+    );
+  }
   const messageTime = Math.min(Date.now(), Date.parse(`${chat.time}Z`));
   return (
     <li className={`chat ${user === chat.username ? "right" : "left"}`}>
-      <Markdown
-        source={parseMessage(chat.message)}
-        skipHtml={false}
-        allowedTypses={[
-          "root",
-          "break",
-          "paragraph",
-          "emphasis",
-          "strong",
-          "link",
-          "list",
-          "listItem",
-          "image"
-        ]}
-        renderers={{
-          paragraph: ({ children }) => <span>{children}</span>,
-          link: ({ href, children }) => (
-            <a href={href} target="_blank">
-              {children}
-            </a>
-          )
-        }}
-        plugins={[breaks]}
-      />
+      {parseMessage(chat.message, onButtonClick)}
       <span className="time" title={new Date(messageTime).toISOString()}>
         {moment(messageTime).fromNow()}
       </span>
@@ -69,6 +86,7 @@ class Chatroom extends React.Component {
 
     this.handleSubmitMessage = this.handleSubmitMessage.bind(this);
     this.handleToggleChat = this.handleToggleChat.bind(this);
+    this.handleButtonClick = this.handleButtonClick.bind(this);
     this._isMounted = false;
     this.lastRendered = 0;
   }
@@ -117,7 +135,19 @@ class Chatroom extends React.Component {
       `${this.props.host}/conversations/${this.props.cid}/log`
     );
     const messages = await res.json();
+    // const messages = require("./messages.json");
     this.setState({ messages });
+  }
+
+  async sendMessage(message) {
+    if (message === "") return;
+
+    await fetch(
+      `${this.props.host}/conversations/${
+        this.props.cid
+      }/say?message=${encodeURI(ReactDOM.findDOMNode(this.refs.msg).value)}`
+    );
+    await this.fetchMessages();
   }
 
   async poll() {
@@ -149,19 +179,19 @@ class Chatroom extends React.Component {
 
     const message = ReactDOM.findDOMNode(this.refs.msg).value.trim();
 
-    if (message === "") return;
-
-    await fetch(
-      `${this.props.host}/conversations/${
-        this.props.cid
-      }/say?message=${encodeURI(ReactDOM.findDOMNode(this.refs.msg).value)}`
-    );
-    await this.fetchMessages();
+    this.sendMessage(message);
 
     ReactDOM.findDOMNode(this.refs.msg).value = "";
 
     if (window.ga != null) {
       window.ga("send", "event", "chat", "chat-message-sent");
+    }
+  }
+
+  handleButtonClick(message) {
+    this.sendMessage(message);
+    if (window.ga != null) {
+      window.ga("send", "event", "chat", "chat-button-click");
     }
   }
 
@@ -174,7 +204,12 @@ class Chatroom extends React.Component {
         <h3 onClick={this.handleToggleChat}>{this.props.title}</h3>
         <ul className="chats" ref="chats">
           {messages.map((chat, i) => (
-            <Message chat={chat} user={this.props.cid} key={i} />
+            <Message
+              chat={chat}
+              user={this.props.cid}
+              key={i}
+              onButtonClick={this.handleButtonClick}
+            />
           ))}
         </ul>
         <form className="input" onSubmit={e => this.handleSubmitMessage(e)}>
