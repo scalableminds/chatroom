@@ -63,7 +63,7 @@ const Message = ({ chat, user, onButtonClick }) => {
   const messageTime = Math.min(Date.now(), Date.parse(`${chat.time}Z`));
   return (
     <li className={`chat ${user === chat.username ? "right" : "left"}`}>
-      {parseMessage(chat.message, onButtonClick)}
+      {parseMessage(chat.message)}
       <span className="time" title={new Date(messageTime).toISOString()}>
         {moment(messageTime).fromNow()}
       </span>
@@ -145,7 +145,7 @@ class Chatroom extends React.Component {
     await fetch(
       `${this.props.host}/conversations/${
         this.props.cid
-      }/say?message=${encodeURI(ReactDOM.findDOMNode(this.refs.msg).value)}`
+      }/say?message=${encodeURI(message)}`
     );
     await this.fetchMessages();
   }
@@ -178,9 +178,7 @@ class Chatroom extends React.Component {
     e.preventDefault();
 
     const message = ReactDOM.findDOMNode(this.refs.msg).value.trim();
-
     this.sendMessage(message);
-
     ReactDOM.findDOMNode(this.refs.msg).value = "";
 
     if (window.ga != null) {
