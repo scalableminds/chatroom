@@ -9,6 +9,7 @@ import isEqual from "lodash.isequal";
 import "./Chatroom.css";
 
 const Message = ({ chat, user, onButtonClick }) => {
+  const message = chat.message;
   const messageTime = Math.min(Date.now(), Date.parse(`${chat.time}Z`));
   switch (message.type) {
     case "button":
