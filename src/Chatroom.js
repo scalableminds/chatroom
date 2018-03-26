@@ -24,7 +24,7 @@ function parseMessage(message, onButtonClick) {
             "link",
             "list",
             "listItem",
-            "image"
+            "image",
           ]}
           renderers={{
             paragraph: ({ children }) => <span>{children}</span>,
@@ -32,7 +32,7 @@ function parseMessage(message, onButtonClick) {
               <a href={href} target="_blank">
                 {children}
               </a>
-            )
+            ),
           }}
           plugins={[breaks]}
         />
@@ -49,11 +49,7 @@ const Message = ({ chat, user, onButtonClick }) => {
     return (
       <ul className="chat-buttons">
         {chat.message.buttons.map(({ payload, title }) => (
-          <li
-            className="chat-button"
-            key={payload}
-            onClick={() => onButtonClick(payload)}
-          >
+          <li className="chat-button" key={payload} onClick={() => onButtonClick(payload)}>
             {title}
           </li>
         ))}
@@ -81,7 +77,7 @@ class Chatroom extends React.Component {
 
     this.state = {
       messages: [],
-      isOpen: false
+      isOpen: false,
     };
 
     this.handleSubmitMessage = this.handleSubmitMessage.bind(this);
@@ -122,7 +118,7 @@ class Chatroom extends React.Component {
 
   scrollToBot() {
     ReactDOM.findDOMNode(this.refs.chats).scrollTop = ReactDOM.findDOMNode(
-      this.refs.chats
+      this.refs.chats,
     ).scrollHeight;
   }
 
@@ -131,9 +127,7 @@ class Chatroom extends React.Component {
   }
 
   async fetchMessages() {
-    const res = await fetch(
-      `${this.props.host}/conversations/${this.props.cid}/log`
-    );
+    const res = await fetch(`${this.props.host}/conversations/${this.props.cid}/log`);
     const messages = await res.json();
     // const messages = require("./messages.json");
     this.setState({ messages });
@@ -143,9 +137,7 @@ class Chatroom extends React.Component {
     if (message === "") return;
 
     await fetch(
-      `${this.props.host}/conversations/${
-        this.props.cid
-      }/say?message=${encodeURI(message)}`
+      `${this.props.host}/conversations/${this.props.cid}/say?message=${encodeURI(message)}`,
     );
     await this.fetchMessages();
   }
@@ -197,10 +189,27 @@ class Chatroom extends React.Component {
     const { messages, isOpen } = this.state;
     const chatroomClassName = `chatroom ${isOpen ? "open" : "closed"}`;
 
+    const welcomeMessage = this.props.welcomeMessage ? (
+      <Message
+        chat={{
+          user: "bot",
+          time: new Date().toISOString().slice(0, -1),
+          message: {
+            text: this.props.welcomeMessage,
+            type: "text",
+          },
+        }}
+        user={this.props.cid}
+        key="welcomeMessage"
+        onButtonClick={this.handleButtonClick}
+      />
+    ) : null;
+
     return (
       <div className={chatroomClassName}>
         <h3 onClick={this.handleToggleChat}>{this.props.title}</h3>
         <ul className="chats" ref="chats">
+          {welcomeMessage}
           {messages.map((chat, i) => (
             <Message
               chat={chat}
@@ -231,16 +240,21 @@ function uuidv4() {
 
 window.SimpleChatroom = function(options) {
   let sessionCid = window.sessionStorage.getItem(CID_STORAGE_KEY);
+
   if (sessionCid == null) {
     sessionCid = uuidv4();
     window.sessionStorage.setItem(CID_STORAGE_KEY, sessionCid);
   }
+
+  const welcomeMessage = options.welcomeMessage !== null ? options.welcomeMessage : null;
+
   ReactDOM.render(
     <Chatroom
       cid={sessionCid}
       host={options.host}
       title={options.title || "Chat"}
+      welcomeMessage={welcomeMessage}
     />,
-    options.container
+    options.container,
   );
 };
