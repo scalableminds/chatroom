@@ -1,6 +1,6 @@
 {
   "name": "@scalableminds/simple-chatroom",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "license": "MIT",
   "dependencies": {
     "babel-polyfill": "^6.26.0",
