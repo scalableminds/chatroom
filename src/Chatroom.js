@@ -41,35 +41,37 @@ const Message = ({ chat, user, onButtonClick }) => {
         </li>
       );
     default:
-      <li className={`chat ${user === chat.username ? "right" : "left"}`}>
-        <Markdown
-          source={message.text}
-          skipHtml={false}
-          allowedTypses={[
-            "root",
-            "break",
-            "paragraph",
-            "emphasis",
-            "strong",
-            "link",
-            "list",
-            "listItem",
-            "image"
-          ]}
-          renderers={{
-            paragraph: ({ children }) => <span>{children}</span>,
-            link: ({ href, children }) => (
-              <a href={href} target="_blank">
-                {children}
-              </a>
-            )
-          }}
-          plugins={[breaks]}
-        />
-        <span className="time" title={new Date(messageTime).toISOString()}>
-          {moment(messageTime).fromNow()}
-        </span>
-      </li>;
+      return (
+        <li className={`chat ${user === chat.username ? "right" : "left"}`}>
+          <Markdown
+            source={message.text}
+            skipHtml={false}
+            allowedTypses={[
+              "root",
+              "break",
+              "paragraph",
+              "emphasis",
+              "strong",
+              "link",
+              "list",
+              "listItem",
+              "image"
+            ]}
+            renderers={{
+              paragraph: ({ children }) => <span>{children}</span>,
+              link: ({ href, children }) => (
+                <a href={href} target="_blank">
+                  {children}
+                </a>
+              )
+            }}
+            plugins={[breaks]}
+          />
+          <span className="time" title={new Date(messageTime).toISOString()}>
+            {moment(messageTime).fromNow()}
+          </span>
+        </li>
+      );
   }
 };
 

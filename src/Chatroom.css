@@ -91,6 +91,11 @@
 .chatroom .chats .chat ul,
 .chatroom .chats .chat ol {
   margin: 0;
+  padding-left: 1.5em;
+}
+.chatroom .chats .chat ul li,
+.chatroom .chats .chat ol li {
+  padding-left: 0;
 }
 
 .chatroom .chats .chat-buttons {
