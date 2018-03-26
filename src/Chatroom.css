@@ -50,6 +50,7 @@
 
 .chatroom .chats .chat img {
   max-width: 100%;
+  vertical-align: middle;
 }
 
 .chatroom .chats .chat span.time {
@@ -76,6 +77,10 @@
   float: right;
   clear: both;
   border-bottom-right-radius: 0;
+}
+
+.chatroom .chats .chat.chat-img {
+  padding: 5px;
 }
 
 .chatroom .chats .chat a {

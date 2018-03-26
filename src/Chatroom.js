@@ -8,10 +8,39 @@ import isEqual from "lodash.isequal";
 
 import "./Chatroom.css";
 
-function parseMessage(message, onButtonClick) {
+const Message = ({ chat, user, onButtonClick }) => {
+  const messageTime = Math.min(Date.now(), Date.parse(`${chat.time}Z`));
   switch (message.type) {
-    case "text":
+    case "button":
       return (
+        <ul className="chat-buttons">
+          {chat.message.buttons.map(({ payload, title }) => (
+            <li
+              className="chat-button"
+              key={payload}
+              onClick={() => onButtonClick(payload)}
+            >
+              {title}
+            </li>
+          ))}
+        </ul>
+      );
+
+    case "image":
+      return (
+        <li
+          className={`chat ${
+            user === chat.username ? "right" : "left"
+          } chat-img`}
+        >
+          <img src={message.image} alt="" />
+          <span className="time" title={new Date(messageTime).toISOString()}>
+            {moment(messageTime).fromNow()}
+          </span>
+        </li>
+      );
+    default:
+      <li className={`chat ${user === chat.username ? "right" : "left"}`}>
         <Markdown
           source={message.text}
           skipHtml={false}
@@ -36,39 +65,11 @@ function parseMessage(message, onButtonClick) {
           }}
           plugins={[breaks]}
         />
-      );
-    case "image":
-      return <img src={message.image} alt="" />;
-    default:
-      return "";
+        <span className="time" title={new Date(messageTime).toISOString()}>
+          {moment(messageTime).fromNow()}
+        </span>
+      </li>;
   }
-}
-
-const Message = ({ chat, user, onButtonClick }) => {
-  if (chat.message.type === "button") {
-    return (
-      <ul className="chat-buttons">
-        {chat.message.buttons.map(({ payload, title }) => (
-          <li
-            className="chat-button"
-            key={payload}
-            onClick={() => onButtonClick(payload)}
-          >
-            {title}
-          </li>
-        ))}
-      </ul>
-    );
-  }
-  const messageTime = Math.min(Date.now(), Date.parse(`${chat.time}Z`));
-  return (
-    <li className={`chat ${user === chat.username ? "right" : "left"}`}>
-      {parseMessage(chat.message)}
-      <span className="time" title={new Date(messageTime).toISOString()}>
-        {moment(messageTime).fromNow()}
-      </span>
-    </li>
-  );
 };
 
 function sleep(ms) {
