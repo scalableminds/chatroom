@@ -260,6 +260,10 @@ class Chatroom extends React.Component {
 
     renderableMessages.sort((a, b) => a.time - b.time);
 
+    const showWaitingBubble =
+      localMessages.length > 0 ||
+      renderableMessages[renderableMessages.length - 1].username != "bot";
+
     return (
       <div className={chatroomClassName}>
         <h3 onClick={this.handleToggleChat}>{this.props.title}</h3>
@@ -272,7 +276,7 @@ class Chatroom extends React.Component {
               onButtonClick={this.handleButtonClick}
             />
           ))}
-          {localMessages.length > 0 ? <WaitingBubble /> : null}
+          {showWaitingBubble ? <WaitingBubble /> : null}
         </ul>
         <form className="input" onSubmit={e => this.handleSubmitMessage(e)}>
           <input type="text" ref="msg" />
