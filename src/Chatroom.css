@@ -79,6 +79,10 @@
   border-bottom-right-radius: 0;
 }
 
+.chatroom .chats .chat > div.text {
+  word-wrap: break-word;
+}
+
 .chatroom .chats .chat.chat-img {
   padding: 5px;
 }

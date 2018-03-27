@@ -44,6 +44,7 @@ const Message = ({ chat, user, onButtonClick }) => {
       return (
         <li className={`chat ${user === chat.username ? "right" : "left"}`}>
           <Markdown
+            className="text"
             source={message.text}
             skipHtml={false}
             allowedTypses={[
