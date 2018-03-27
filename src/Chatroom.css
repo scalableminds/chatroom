@@ -81,6 +81,8 @@
 
 .chatroom .chats .chat.waiting {
   margin: 10px 0;
+  background: transparent;
+  padding: 0;
 }
 
 @keyframes fade {
@@ -93,6 +95,7 @@
   }
 }
 .chatroom .chats .chat.waiting span {
+  font-size: 1.5em;
   animation-name: fade;
   animation-duration: 0.8s;
   animation-iteration-count: infinite;

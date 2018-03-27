@@ -182,7 +182,11 @@ class Chatroom extends React.Component {
       uuid: uuidv4()
     };
 
-    this.setState({ localMessages: [...this.state.localMessages, messageObj] });
+    if (messageText !== "_restart") {
+      this.setState({
+        localMessages: [...this.state.localMessages, messageObj]
+      });
+    }
 
     await fetch(
       `${this.props.host}/conversations/${
@@ -244,7 +248,7 @@ class Chatroom extends React.Component {
     const welcomeMessage =
       this.props.welcomeMessage != null
         ? {
-            user: "bot",
+            username: "bot",
             time: 0,
             message: {
               text: this.props.welcomeMessage,
@@ -262,7 +266,8 @@ class Chatroom extends React.Component {
 
     const showWaitingBubble =
       localMessages.length > 0 ||
-      renderableMessages[renderableMessages.length - 1].username != "bot";
+      (renderableMessages.length > 0 &&
+        renderableMessages[renderableMessages.length - 1].username != "bot");
 
     return (
       <div className={chatroomClassName}>
