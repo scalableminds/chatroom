@@ -10,6 +10,7 @@ import "./Chatroom.css";
 
 const POLLING_INTERVAL = 1000;
 const REDRAW_INTERVAL = 10000;
+const MESSAGE_BLACKLIST = ["_restart"];
 
 function renderMessageTime(_messageTime) {
   if (_messageTime === 0) return;
@@ -165,7 +166,7 @@ class Chatroom extends React.Component {
 
     // remove redundant local messages
     const localMessages = this.state.localMessages.filter(
-      m => messages.find(n => n.uuid === m.uuid) == null
+      m => !messages.some(n => n.uuid === m.uuid)
     );
 
     // const messages = require("./messages.json");
@@ -182,7 +183,7 @@ class Chatroom extends React.Component {
       uuid: uuidv4()
     };
 
-    if (messageText !== "_restart") {
+    if (!MESSAGE_BLACKLIST.includes(messageText)) {
       this.setState({
         localMessages: [...this.state.localMessages, messageObj]
       });
@@ -195,7 +196,7 @@ class Chatroom extends React.Component {
         messageObj.uuid
       }`
     );
-    // await this.fetchMessages();
+    await this.fetchMessages();
   }
 
   async poll() {
