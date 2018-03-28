@@ -86,7 +86,7 @@ const Message = ({ chat, user, onButtonClick }) => {
 };
 
 const WaitingBubble = () => (
-  <li className={`chat waiting`}>
+  <li className="chat waiting">
     <span>●</span> <span>●</span> <span>●</span>
   </li>
 );
