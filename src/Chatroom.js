@@ -303,7 +303,7 @@ function uuidv4() {
   });
 }
 
-window.SimpleChatroom = function(options) {
+window.SimpleChatroom = function(options = {}) {
   let sessionCid = window.sessionStorage.getItem(CID_STORAGE_KEY);
 
   if (sessionCid == null) {
@@ -311,15 +311,12 @@ window.SimpleChatroom = function(options) {
     window.sessionStorage.setItem(CID_STORAGE_KEY, sessionCid);
   }
 
-  const welcomeMessage =
-    options.welcomeMessage !== null ? options.welcomeMessage : null;
-
-  ReactDOM.render(
+  this.ref = ReactDOM.render(
     <Chatroom
       cid={sessionCid}
       host={options.host}
       title={options.title || "Chat"}
-      welcomeMessage={welcomeMessage}
+      welcomeMessage={options.welcomeMessage}
     />,
     options.container
   );
