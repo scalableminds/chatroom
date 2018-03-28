@@ -8,9 +8,23 @@ import isEqual from "lodash.isequal";
 
 import "./Chatroom.css";
 
+const POLLING_INTERVAL = 1000;
+const REDRAW_INTERVAL = 10000;
+const MESSAGE_BLACKLIST = ["_restart"];
+
+function renderMessageTime(_messageTime) {
+  if (_messageTime === 0) return;
+
+  const messageTime = Math.min(Date.now(), _messageTime);
+  return (
+    <span className="time" title={new Date(messageTime).toISOString()}>
+      {moment(messageTime).fromNow()}
+    </span>
+  );
+}
+
 const Message = ({ chat, user, onButtonClick }) => {
   const message = chat.message;
-  const messageTime = Math.min(Date.now(), Date.parse(`${chat.time}Z`));
   switch (message.type) {
     case "button":
       return (
@@ -35,9 +49,7 @@ const Message = ({ chat, user, onButtonClick }) => {
           } chat-img`}
         >
           <img src={message.image} alt="" />
-          <span className="time" title={new Date(messageTime).toISOString()}>
-            {moment(messageTime).fromNow()}
-          </span>
+          {renderMessageTime(chat.time)}
         </li>
       );
     default:
@@ -68,13 +80,17 @@ const Message = ({ chat, user, onButtonClick }) => {
             }}
             plugins={[breaks]}
           />
-          <span className="time" title={new Date(messageTime).toISOString()}>
-            {moment(messageTime).fromNow()}
-          </span>
+          {renderMessageTime(chat.time)}
         </li>
       );
   }
 };
+
+const WaitingBubble = () => (
+  <li className="chat waiting">
+    <span>●</span> <span>●</span> <span>●</span>
+  </li>
+);
 
 function sleep(ms) {
   return new Promise(resolve => setTimeout(resolve, ms));
@@ -86,6 +102,7 @@ class Chatroom extends React.Component {
 
     this.state = {
       messages: [],
+      localMessages: [],
       isOpen: false
     };
 
@@ -103,7 +120,10 @@ class Chatroom extends React.Component {
   }
 
   componentDidUpdate(prevProps, prevState) {
-    if (!isEqual(prevState.messages, this.state.messages)) {
+    if (
+      !isEqual(prevState.messages, this.state.messages) ||
+      !isEqual(prevState.localMessages, this.state.localMessages)
+    ) {
       this.scrollToBot();
     }
     if (!prevState.isOpen && this.state.isOpen) {
@@ -117,7 +137,7 @@ class Chatroom extends React.Component {
     return (
       !isEqual(nextProps, this.props) ||
       !isEqual(nextState, this.state) ||
-      Date.now() > this.lastRendered + 10000
+      Date.now() > this.lastRendered + REDRAW_INTERVAL
     );
   }
 
@@ -140,17 +160,41 @@ class Chatroom extends React.Component {
       `${this.props.host}/conversations/${this.props.cid}/log`
     );
     const messages = await res.json();
+    messages.forEach(m => {
+      m.time = Date.parse(`${m.time}Z`);
+    });
+
+    // remove redundant local messages
+    const localMessages = this.state.localMessages.filter(
+      m => !messages.some(n => n.uuid === m.uuid)
+    );
+
     // const messages = require("./messages.json");
-    this.setState({ messages });
+    this.setState({ messages, localMessages });
   }
 
-  async sendMessage(message) {
-    if (message === "") return;
+  async sendMessage(messageText) {
+    if (messageText === "") return;
+
+    const messageObj = {
+      message: { text: messageText },
+      time: Date.now(),
+      username: this.props.cid,
+      uuid: uuidv4()
+    };
+
+    if (!MESSAGE_BLACKLIST.includes(messageText)) {
+      this.setState({
+        localMessages: [...this.state.localMessages, messageObj]
+      });
+    }
 
     await fetch(
       `${this.props.host}/conversations/${
         this.props.cid
-      }/say?message=${encodeURI(message)}`
+      }/say?message=${encodeURI(messageObj.message.text)}&uuid=${
+        messageObj.uuid
+      }`
     );
     await this.fetchMessages();
   }
@@ -164,7 +208,7 @@ class Chatroom extends React.Component {
       } catch (err) {
         // pass
       }
-      await sleep(1000);
+      await sleep(POLLING_INTERVAL);
     }
   }
 
@@ -199,31 +243,38 @@ class Chatroom extends React.Component {
   }
 
   render() {
-    const { messages, isOpen } = this.state;
+    const { messages, localMessages, isOpen } = this.state;
     const chatroomClassName = `chatroom ${isOpen ? "open" : "closed"}`;
 
-    const welcomeMessage = this.props.welcomeMessage ? (
-      <Message
-        chat={{
-          user: "bot",
-          time: new Date().toISOString().slice(0, -1),
-          message: {
-            text: this.props.welcomeMessage,
-            type: "text"
+    const welcomeMessage =
+      this.props.welcomeMessage != null
+        ? {
+            username: "bot",
+            time: 0,
+            message: {
+              text: this.props.welcomeMessage,
+              type: "text"
+            }
           }
-        }}
-        user={this.props.cid}
-        key="welcomeMessage"
-        onButtonClick={this.handleButtonClick}
-      />
-    ) : null;
+        : null;
+
+    const renderableMessages =
+      welcomeMessage != null
+        ? [welcomeMessage, ...messages, ...localMessages]
+        : [...messages, ...localMessages];
+
+    renderableMessages.sort((a, b) => a.time - b.time);
+
+    const showWaitingBubble =
+      localMessages.length > 0 ||
+      (renderableMessages.length > 0 &&
+        renderableMessages[renderableMessages.length - 1].username != "bot");
 
     return (
       <div className={chatroomClassName}>
         <h3 onClick={this.handleToggleChat}>{this.props.title}</h3>
         <ul className="chats" ref="chats">
-          {welcomeMessage}
-          {messages.map((chat, i) => (
+          {renderableMessages.map((chat, i) => (
             <Message
               chat={chat}
               user={this.props.cid}
@@ -231,6 +282,7 @@ class Chatroom extends React.Component {
               onButtonClick={this.handleButtonClick}
             />
           ))}
+          {showWaitingBubble ? <WaitingBubble /> : null}
         </ul>
         <form className="input" onSubmit={e => this.handleSubmitMessage(e)}>
           <input type="text" ref="msg" />
