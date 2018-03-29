@@ -21,6 +21,7 @@ type ConnectedChatroomState = {
   localMessages: Array<ChatMessage>,
   isOpen: boolean,
   waitingForBotResponse: boolean,
+  messageCounter: number,
 };
 
 export default class ConnectedChatroom extends React.Component<
@@ -32,9 +33,11 @@ export default class ConnectedChatroom extends React.Component<
     localMessages: [],
     isOpen: false,
     waitingForBotResponse: false,
+    messageCounter: 0,
   };
 
   waitingForBotResponseTimer: ?TimeoutID = null;
+  messageCounterInterval: ?IntervalID = null;
   _isMounted: boolean = false;
   chatroomRef: ?ElementRef<typeof Chatroom> = null;
 
@@ -54,6 +57,10 @@ export default class ConnectedChatroom extends React.Component<
     if (this.waitingForBotResponseTimer != null) {
       window.clearTimeout(this.waitingForBotResponseTimer);
       this.waitingForBotResponseTimer = null;
+    }
+    if (this.messageCounterInterval != null) {
+      window.clearInterval(this.messageCounterInterval);
+      this.messageCounterInterval = null;
     }
   }
 
@@ -101,6 +108,8 @@ export default class ConnectedChatroom extends React.Component<
   async fetchMessages() {
     const res = await fetch(`${this.props.host}/conversations/${this.props.userId}/log`);
     const messages = await res.json();
+
+    // Fix dates
     messages.forEach(m => {
       m.time = Date.parse(`${m.time}Z`);
     });
@@ -110,14 +119,34 @@ export default class ConnectedChatroom extends React.Component<
       m => !messages.some(n => n.uuid === m.uuid),
     );
 
+    // Bot messages should be displayed in a queued manner. Not all at once
+    let { messageCounter } = this.state;
+    if (messageCounter < 0) {
+      messageCounter = messages.length;
+    }
+    if (messageCounter < messages.length) {
+      // Increase the counter in every loop
+      messageCounter++;
+
+      // Set the counter to the last user message
+      let lastUserMessageIndex = messages.length - 1;
+      for (
+        ;
+        lastUserMessageIndex >= 0 && messages[lastUserMessageIndex].username === "bot";
+        lastUserMessageIndex--
+      );
+
+      messageCounter = Math.max(lastUserMessageIndex, messageCounter);
+    }
+
     // We might still be waiting on bot responses,
     // if there are unconfirmed user messages or missing replies
     const waitingForBotResponse =
-      this.state.waitingForBotResponse &&
-      localMessages.length > 0 &&
-      (messages.length === 0 || messages[messages.length - 1].username !== "bot");
+      (this.state.waitingForBotResponse && messageCounter !== messages.length) ||
+      (localMessages.length > 0 &&
+        (messages.length === 0 || messages[messages.length - 1].username !== "bot"));
 
-    this.setState({ messages, localMessages, waitingForBotResponse });
+    this.setState({ messages, localMessages, waitingForBotResponse, messageCounter });
   }
 
   async poll() {
@@ -152,7 +181,7 @@ export default class ConnectedChatroom extends React.Component<
   };
 
   render() {
-    const { messages, localMessages, waitingForBotResponse } = this.state;
+    const { messages, localMessages, waitingForBotResponse, messageCounter } = this.state;
 
     const welcomeMessage =
       this.props.welcomeMessage != null
@@ -169,8 +198,8 @@ export default class ConnectedChatroom extends React.Component<
 
     const renderableMessages =
       welcomeMessage != null
-        ? [welcomeMessage, ...messages, ...localMessages]
-        : [...messages, ...localMessages];
+        ? [welcomeMessage, ...messages.slice(0, messageCounter), ...localMessages]
+        : [...messages.slice(0, messageCounter), ...localMessages];
 
     renderableMessages.sort((a, b) => a.time - b.time);
 
