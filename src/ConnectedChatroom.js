@@ -7,6 +7,7 @@ import Chatroom from "./Chatroom";
 import { sleep, uuidv4 } from "./utils";
 
 const POLLING_INTERVAL = 1000;
+const WAITING_TIMEOUT = 5000;
 const MESSAGE_BLACKLIST = ["_restart"];
 
 type ConnectedChatroomProps = {
@@ -19,6 +20,7 @@ type ConnectedChatroomState = {
   messages: Array<ChatMessage>,
   localMessages: Array<ChatMessage>,
   isOpen: boolean,
+  waitingForBotResponse: boolean,
 };
 
 export default class ConnectedChatroom extends React.Component<
@@ -29,7 +31,10 @@ export default class ConnectedChatroom extends React.Component<
     messages: [],
     localMessages: [],
     isOpen: false,
+    waitingForBotResponse: false,
   };
+
+  waitingForBotResponseTimer: ?TimeoutID = null;
   _isMounted: boolean = false;
   chatroomRef: ?ElementRef<typeof Chatroom> = null;
 
@@ -74,6 +79,13 @@ export default class ConnectedChatroom extends React.Component<
       .map(k => `${k}=${encodeURI(String(getParameters[k]))}`)
       .join("&");
 
+    this.setState({ waitingForBotResponse: true });
+    if (this.waitingForBotResponseTimer != null) {
+      window.clearTimeout(this.waitingForBotResponseTimer);
+    }
+    this.waitingForBotResponseTimer = setTimeout(() => {
+      this.setState({ waitingForBotResponse: false });
+    }, WAITING_TIMEOUT);
     await fetch(`${this.props.host}/conversations/${this.props.userId}/say?${getParametersString}`);
 
     if (window.ga != null) {
@@ -89,13 +101,19 @@ export default class ConnectedChatroom extends React.Component<
       m.time = Date.parse(`${m.time}Z`);
     });
 
-    // remove redundant local messages
+    // Remove redundant local messages
     const localMessages = this.state.localMessages.filter(
       m => !messages.some(n => n.uuid === m.uuid),
     );
 
-    // const messages = require("./messages.json");
-    this.setState({ messages, localMessages });
+    // We might still be waiting on bot responses,
+    // if there are unconfirmed user messages or missing replies
+    const waitingForBotResponse =
+      this.state.waitingForBotResponse &&
+      localMessages.length > 0 &&
+      (messages.length === 0 || messages[messages.length - 1].username !== "bot");
+
+    this.setState({ messages, localMessages, waitingForBotResponse });
   }
 
   async poll() {
@@ -130,7 +148,7 @@ export default class ConnectedChatroom extends React.Component<
   };
 
   render() {
-    const { messages, localMessages } = this.state;
+    const { messages, localMessages, waitingForBotResponse } = this.state;
 
     const welcomeMessage =
       this.props.welcomeMessage != null
@@ -152,16 +170,11 @@ export default class ConnectedChatroom extends React.Component<
 
     renderableMessages.sort((a, b) => a.time - b.time);
 
-    const showWaitingBubble =
-      localMessages.length > 0 ||
-      (renderableMessages.length > 0 &&
-        renderableMessages[renderableMessages.length - 1].username != "bot");
-
     return (
       <Chatroom
         messages={renderableMessages}
         title={this.props.title}
-        showWaitingBubble={showWaitingBubble}
+        showWaitingBubble={waitingForBotResponse}
         isOpen={this.state.isOpen}
         onToggleChat={this.handleToggleChat}
         onButtonClick={this.handleButtonClick}

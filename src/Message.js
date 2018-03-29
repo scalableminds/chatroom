@@ -10,7 +10,7 @@ type MessageTimeProps = {
   isBot: boolean,
 };
 export const MessageTime = ({ time, isBot }: MessageTimeProps) => {
-  if (time === 0) return;
+  if (time === 0) return null;
 
   const messageTime = Math.min(Date.now(), time);
   return (

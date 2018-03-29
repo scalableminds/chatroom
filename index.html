@@ -9,54 +9,14 @@
 </head>
 <body>
     <div class="chat-container"></div>
-    <div style="text-align: center;"><button id="demo-button">Demo</button></div>
     <script src="./dist/Chatroom.js"></script>
     <script type="text/javascript">
-    window.chatroom = new window.DemoSimpleChatroom({
+    window.chatroom = new window.SimpleChatroom({
   title: "Chat with a bot",
   container: document.querySelector(".chat-container"),
+  welcomeMessage: "How may I help you?",
+  host: "http://localhost:5002",
 });
-document.getElementById("demo-button").addEventListener(
-  "click",
-  function() {
-    window.chatroom.demo([
-      {
-        message: { type: "text", text: "Hello how can I help you?" },
-        username: "bot",
-      },
-      {
-        message: { type: "text", text: "I need glue" },
-        username: "user",
-      },
-      {
-        message: {
-          type: "text",
-          text: "We have many sorts of adhesives. Let me help you find the right one.",
-        },
-        username: "bot",
-      },
-      {
-        message: {
-          type: "text",
-          text: "Are you bonding magnets?",
-        },
-        username: "bot",
-      },
-      {
-        message: {
-          type: "button",
-          buttons: [{ title: "Yes", payload: "Yes" }, { title: "No", payload: "No" }],
-        },
-        username: "bot",
-      },
-      {
-        message: { type: "text", text: "No" },
-        username: "user",
-      },
-    ]);
-  },
-  false,
-);
 </script>
 </body>
 </html>
