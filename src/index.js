@@ -62,7 +62,13 @@ window.DemoSimpleChatroom = function(options: DemoSimpleChatroomOptions) {
     );
   };
 
-  this.demo = async (_messages: Array<ChatMessage>, delay: number = 1000) => {
+  this.demo = async (
+    _messages: Array<ChatMessage>,
+    delay: number = 1000,
+    keyDelay: number = 100,
+  ) => {
+    if (_messages.length === 0) return;
+
     const messages = _messages.map((m, i) => ({
       message: m.message,
       username: m.username || "user",
@@ -70,9 +76,29 @@ window.DemoSimpleChatroom = function(options: DemoSimpleChatroomOptions) {
       uuid: uuidv4(),
     }));
 
-    for (let i = 0; i <= messages.length; i++) {
-      const showWaitingBubble = i < messages.length && messages[i].username === "bot";
-      this.render(messages.slice(0, i), showWaitingBubble);
+    for (let i = -1; i < messages.length; i++) {
+      if (i < 0 && messages[0].username === "bot") {
+        this.render([], true);
+      } else {
+        const currentMessage = messages[i];
+
+        // Show waiting when next message is a bot message
+        const showWaitingBubble = i + 1 < messages.length && messages[i + 1].username === "bot";
+
+        // Show typing animation if current message is a user message
+        if (currentMessage.username !== "bot" && currentMessage.message.type === "text") {
+          const messageText = currentMessage.message.text;
+          this.ref.getInputRef().focus();
+          for (let j = 0; j < messageText.length; j++) {
+            this.ref.getInputRef().value = messageText.substring(0, j + 1);
+            await sleep(keyDelay);
+          }
+          await sleep(delay);
+          this.ref.getInputRef().value = "";
+          this.ref.getInputRef().blur();
+        }
+        this.render(messages.slice(0, i + 1), showWaitingBubble);
+      }
       await sleep(delay);
     }
   };

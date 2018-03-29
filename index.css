@@ -18,64 +18,18 @@
 }
 
 .chat-container .chatroom {
-  border-radius: 3px;
   background-color: rgba(200, 200, 200, 0.9);
   box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.8);
 }
 
 .chat-container .chatroom h3 {
-  text-transform: none;
-  font-weight: 300;
-  font-size: 18px;
-  letter-spacing: normal;
-  background-color: rgba(52, 61, 78, 1);
+  font-weight: 600;
+  text-transform: uppercase;
 }
 
-.chat-container .chatroom .input {
-  background-color: rgba(52, 61, 78, 1);
-  margin: 0;
-  padding: 0 5px;
-}
-.chat-container .chatroom .input [type="text"] {
-  background-color: rgba(255, 255, 255, 0.8);
-  transition: background-color 0.2s ease;
-  border-top-left-radius: 3px;
-  border-bottom-left-radius: 3px;
-  border-top-right-radius: 0;
-  border-bottom-right-radius: 0;
-  border: 1px solid #ffffff;
-  border-right: none;
-  color: rgba(52, 61, 78, 1);
-  letter-spacing: normal;
-}
-.chat-container .chatroom .input [type="text"]:focus {
-  box-shadow: none;
-  background-color: white;
-}
 .chat-container .chatroom .input [type="submit"] {
-  box-shadow: none;
-  color: #fff;
   font-weight: 600;
-  display: inline-block;
-  border: 1px solid #ffffff;
-  padding: 0;
-  font-size: 12px;
-  letter-spacing: normal;
-  line-height: normal;
-  border-top-left-radius: 0;
-  border-bottom-left-radius: 0;
-  border-top-right-radius: 3px;
-  border-bottom-right-radius: 3px;
-  text-align: center;
-  text-decoration: none;
   text-transform: uppercase;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  outline: none;
-}
-.chat-container .chatroom .input [type="submit"]:hover {
-  background-color: rgba(200, 200, 200, 0.8);
 }
 
 .chat-container .chatroom .chats .chat {
@@ -84,19 +38,6 @@
 }
 .chat-container .chatroom .chats .chat strong {
   color: rgba(52, 61, 78, 1);
-}
-.chat-container .chatroom .chats .chat-buttons .chat-button {
-  background-color: rgba(52, 61, 78, 1);
-  color: white;
-  border-color: white;
-  padding: 5px 10px;
-  border-width: 2px;
-  letter-spacing: normal;
-  border-radius: 5px;
-}
-.chat-container .chatroom .chats .chat-buttons .chat-button:hover {
-  background-color: rgba(52, 61, 78, 0.6);
-  color: white;
 }
 
 #demo-button {

@@ -4,7 +4,7 @@ import React from "react";
 import ReactDOM from "react-dom";
 import isEqual from "lodash.isequal";
 
-import "./Chatroom.css";
+import "./Chatroom.scss";
 import { uuidv4 } from "./utils";
 import Message, { MessageTime } from "./Message";
 

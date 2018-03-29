@@ -1,5 +1,6 @@
 // @flow
 import React from "react";
+import type { ElementRef } from "react";
 
 import type { ChatMessage } from "./Chatroom";
 import Chatroom from "./Chatroom";
@@ -30,6 +31,7 @@ export default class ConnectedChatroom extends React.Component<
     isOpen: false,
   };
   _isMounted: boolean = false;
+  chatroomRef: ?ElementRef<typeof Chatroom> = null;
 
   componentDidMount() {
     this._isMounted = true;
@@ -164,6 +166,9 @@ export default class ConnectedChatroom extends React.Component<
         onToggleChat={this.handleToggleChat}
         onButtonClick={this.handleButtonClick}
         onSendMessage={this.sendMessage}
+        ref={el => {
+          this.chatroomRef = el;
+        }}
       />
     );
   }
