@@ -6,9 +6,10 @@ import isEqual from "lodash.isequal";
 
 import "./Chatroom.css";
 import { uuidv4 } from "./utils";
-import Message from "./Message";
+import Message, { MessageTime } from "./Message";
 
 const REDRAW_INTERVAL = 10000;
+const GROUP_INTERVAL = 60000;
 
 export type ChatMessage = {
   message:
@@ -28,6 +29,18 @@ const WaitingBubble = () => (
     <span>●</span> <span>●</span> <span>●</span>
   </li>
 );
+
+const MessageGroup = ({ messages, onButtonClick }) => {
+  const isBot = messages[0].username === "bot";
+  return (
+    <React.Fragment>
+      {messages.map((message, i) => (
+        <Message chat={message} key={i} onButtonClick={onButtonClick} />
+      ))}
+      <MessageTime time={messages[messages.length - 1].time} isBot={isBot} />
+    </React.Fragment>
+  );
+};
 
 type ChatroomProps = {
   messages: Array<ChatMessage>,
@@ -89,24 +102,47 @@ export default class Chatroom extends React.Component<ChatroomProps, {}> {
     this.getInputRef().value = "";
   };
 
+  groupMessages(messages: Array<ChatMessage>) {
+    if (messages.length === 0) return [];
+
+    let currentGroup = [messages[0]];
+    let lastTime = messages[0].time;
+    let lastUsername = messages[0].username;
+    const groups = [currentGroup];
+
+    for (const message of messages.slice(1)) {
+      if (message.username !== lastUsername || message.time > lastTime + GROUP_INTERVAL) {
+        currentGroup = [message];
+        groups.push(currentGroup);
+      } else {
+        currentGroup.push(message);
+      }
+      lastTime = message.time;
+      lastUsername = message.username;
+    }
+    return groups;
+  }
+
   render() {
     const { messages, isOpen, showWaitingBubble } = this.props;
     const chatroomClassName = `chatroom ${isOpen ? "open" : "closed"}`;
 
+    const messageGroups = this.groupMessages(messages);
+
     return (
       <div className={chatroomClassName}>
         <h3 onClick={this.props.onToggleChat}>{this.props.title}</h3>
-        <ul
+        <div
           className="chats"
           ref={el => {
             this.chatsRef = el;
           }}
         >
-          {messages.map((chat, i) => (
-            <Message chat={chat} key={chat.uuid || i} onButtonClick={this.props.onButtonClick} />
+          {messageGroups.map((group, i) => (
+            <MessageGroup messages={group} key={i} onButtonClick={this.props.onButtonClick} />
           ))}
           {showWaitingBubble ? <WaitingBubble /> : null}
-        </ul>
+        </div>
         <form className="input" onSubmit={this.handleSubmitMessage}>
           <input
             type="text"

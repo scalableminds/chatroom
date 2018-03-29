@@ -7,15 +7,16 @@ import type { ChatMessage } from "./Chatroom";
 
 type MessageTimeProps = {
   time: number,
+  isBot: boolean,
 };
-const MessageTime = ({ time }: MessageTimeProps) => {
+export const MessageTime = ({ time, isBot }: MessageTimeProps) => {
   if (time === 0) return;
 
   const messageTime = Math.min(Date.now(), time);
   return (
-    <span className="time" title={new Date(messageTime).toISOString()}>
+    <li className={`time ${isBot ? "left" : "right"}`} title={new Date(messageTime).toISOString()}>
       {moment(messageTime).fromNow()}
-    </span>
+    </li>
   );
 };
 
@@ -42,7 +43,6 @@ const Message = ({ chat, onButtonClick }: MessageProps) => {
       return (
         <li className={`chat ${isBot ? "left" : "right"} chat-img`}>
           <img src={message.image} alt="" />
-          <MessageTime time={chat.time} />
         </li>
       );
     default:
@@ -73,7 +73,6 @@ const Message = ({ chat, onButtonClick }: MessageProps) => {
             }}
             plugins={[breaks]}
           />
-          <MessageTime time={chat.time} />
         </li>
       );
   }
