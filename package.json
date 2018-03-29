@@ -12,16 +12,21 @@
     "remark-breaks": "^1.0.0"
   },
   "devDependencies": {
+    "babel-plugin-syntax-class-properties": "^6.13.0",
+    "babel-plugin-transform-class-properties": "^6.24.1",
+    "babel-plugin-transform-flow-strip-types": "^6.22.0",
     "babel-preset-env": "^1.6.1",
     "babel-preset-react": "^6.24.1",
+    "flow-bin": "^0.69.0",
     "parcel-bundler": "^1.6.2",
     "prettier": "^1.11.1"
   },
   "scripts": {
-    "build": "parcel build src/Chatroom.js",
-    "watch": "parcel watch src/Chatroom.js",
+    "build": "parcel build src/index.js",
+    "watch": "parcel watch src/index.js",
+    "flow": "flow",
     "pretty": "prettier --write src/*",
     "prepublish": "yarn build"
   },
-  "main": "dist/Chatroom.js"
+  "main": "dist/index.js"
 }

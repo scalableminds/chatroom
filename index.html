@@ -1,20 +1,55 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="utf-8">
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
     <link rel="stylesheet" type="text/css" href="./dist/Chatroom.css">
-    <title>Demo</title>
+    <link rel="stylesheet" type="text/css" href="./index.css">
+    <title>Chatroom Demo</title>
 </head>
 <body>
-    <div class="container" style="position: fixed; right: 2em; bottom: 0;"></div>
-    <script src="./dist/Chatroom.js"></script>
+    <div class="chat-container"></div>
+    <div style="text-align: center;"><button id="demo-button">Demo</button></div>
+    <script src="./dist/index.js"></script>
     <script type="text/javascript">
-        window.chatroom = new window.SimpleChatroom({
-            host: "http://localhost:5002",
-            title: "Chat with Mike",
-            container: document.querySelector(".container"),
-            welcomeMessage: "Hi, I am Mike. How may I help you?"
-        });
-    </script>
+    window.chatroom = new window.DemoSimpleChatroom({
+  title: "Chat with a bot",
+  container: document.querySelector(".chat-container"),
+});
+document.getElementById("demo-button").addEventListener(
+  "click",
+  function() {
+    window.chatroom.demo([
+      {
+        message: { type: "text", text: "Hello how can I help you?" },
+        username: "bot",
+      },
+      {
+        message: { type: "text", text: "I need glue" },
+        username: "user",
+      },
+      {
+        message: {
+          type: "text",
+          text: "We have many sorts of adhesives. Let me help you find the right one.",
+        },
+        username: "bot",
+      },
+      {
+        message: {
+          type: "text",
+          text: "Are you bonding magnets?",
+        },
+        username: "bot",
+      },
+      {
+        message: { type: "text", text: "No" },
+        username: "user",
+      },
+    ]);
+  },
+  false,
+);
+</script>
 </body>
 </html>
