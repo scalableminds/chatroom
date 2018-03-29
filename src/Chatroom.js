@@ -32,12 +32,15 @@ const WaitingBubble = () => (
 
 const MessageGroup = ({ messages, onButtonClick }) => {
   const isBot = messages[0].username === "bot";
+  const isButtonGroup = messages.length === 1 && messages[0].message.type === "button";
   return (
     <React.Fragment>
       {messages.map((message, i) => (
         <Message chat={message} key={i} onButtonClick={onButtonClick} />
       ))}
-      <MessageTime time={messages[messages.length - 1].time} isBot={isBot} />
+      {!isButtonGroup ? (
+        <MessageTime time={messages[messages.length - 1].time} isBot={isBot} />
+      ) : null}
     </React.Fragment>
   );
 };
@@ -108,17 +111,29 @@ export default class Chatroom extends React.Component<ChatroomProps, {}> {
     let currentGroup = [messages[0]];
     let lastTime = messages[0].time;
     let lastUsername = messages[0].username;
+    let lastType = messages[0].message.type;
     const groups = [currentGroup];
 
     for (const message of messages.slice(1)) {
-      if (message.username !== lastUsername || message.time > lastTime + GROUP_INTERVAL) {
+      if (
+        // Buttons always have their own group
+        lastType === "button" ||
+        message.message.type === "button" ||
+        // Messages are grouped by user/bot
+        message.username !== lastUsername ||
+        // Only time-continuous messages are grouped
+        message.time > lastTime + GROUP_INTERVAL
+      ) {
+        // new group
         currentGroup = [message];
         groups.push(currentGroup);
       } else {
+        // append to group
         currentGroup.push(message);
       }
       lastTime = message.time;
       lastUsername = message.username;
+      lastType = message.message.type;
     }
     return groups;
   }

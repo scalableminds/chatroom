@@ -43,6 +43,13 @@ document.getElementById("demo-button").addEventListener(
         username: "bot",
       },
       {
+        message: {
+          type: "button",
+          buttons: [{ title: "Yes", payload: "Yes" }, { title: "No", payload: "No" }],
+        },
+        username: "bot",
+      },
+      {
         message: { type: "text", text: "No" },
         username: "user",
       },

@@ -59,7 +59,7 @@
   height: 10px;
   font-size: 10px;
   color: #888;
-  margin: 5px 0 30px 0;
+  margin: 5px 0 20px 0;
 }
 .chatroom .chats .time.left {
   float: left;
@@ -141,7 +141,6 @@
   list-style: none;
   clear: both;
   margin: 10px 0;
-  margin-bottom: 30px;
   text-align: center;
 }
 
