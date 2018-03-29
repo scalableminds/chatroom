@@ -51,6 +51,10 @@ export default class ConnectedChatroom extends React.Component<
 
   componentWillUnmount() {
     this._isMounted = false;
+    if (this.waitingForBotResponseTimer != null) {
+      window.clearTimeout(this.waitingForBotResponseTimer);
+      this.waitingForBotResponseTimer = null;
+    }
   }
 
   sendMessage = async (messageText: string, payload?: string) => {

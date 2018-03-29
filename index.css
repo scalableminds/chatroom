@@ -17,29 +17,6 @@
   }
 }
 
-.chat-container .chatroom {
-  background-color: rgba(200, 200, 200, 0.9);
-  box-shadow: 0 0 0 2px rgba(255, 255, 255, 0.8);
-}
-
-.chat-container .chatroom h3 {
-  font-weight: 600;
-  text-transform: uppercase;
-}
-
-.chat-container .chatroom .input [type="submit"] {
-  font-weight: 600;
-  text-transform: uppercase;
-}
-
-.chat-container .chatroom .chats .chat {
-  color: rgba(52, 61, 78, 1);
-  letter-spacing: normal;
-}
-.chat-container .chatroom .chats .chat strong {
-  color: rgba(52, 61, 78, 1);
-}
-
 #demo-button {
   border-radius: 3px;
   color: #343d4e;
