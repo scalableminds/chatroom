@@ -46,6 +46,7 @@ $linkColor: #3498db;
     margin: 0;
     height: calc(100% - 80px);
     overflow-y: scroll;
+    -webkit-overflow-scrolling: touch;
 
     .chat {
       background: $bubbleColor;
