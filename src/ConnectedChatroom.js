@@ -77,6 +77,8 @@ export default class ConnectedChatroom extends React.Component<
     if (!MESSAGE_BLACKLIST.includes(messageText)) {
       this.setState({
         localMessages: [...this.state.localMessages, messageObj],
+        // Reveal all queued bot messages when the user sends a new message
+        messageCounter: this.state.messages.length,
       });
     }
 
@@ -121,6 +123,8 @@ export default class ConnectedChatroom extends React.Component<
 
     // Bot messages should be displayed in a queued manner. Not all at once
     let { messageCounter } = this.state;
+
+    // Show all previous messages at the beginning of the session, e.g. page refresh
     if (messageCounter < 0) {
       messageCounter = messages.length;
     }
