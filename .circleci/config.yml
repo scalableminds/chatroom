@@ -53,5 +53,13 @@ jobs:
 
               # npm pub --access=public
             else
-              echo "Skip non-tag versions"
+              aws s3 sync \
+                . \
+                s3://npm-scalableminds/$(cat package.json | jq -r .name)@$CIRCLE_BRANCH/ \
+                --exclude "node_modules/*" \
+                --exclude ".cache/*" \
+                --exclude ".git/*" \
+                --exclude ".circleci/*" \
+                --acl public-read \
+                --region eu-central-1
             fi
