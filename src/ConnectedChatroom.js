@@ -97,7 +97,9 @@ export default class ConnectedChatroom extends Component<
       window.clearTimeout(this.waitingForBotResponseTimer);
     }
     this.waitingForBotResponseTimer = setTimeout(() => {
-      this.setState({ waitingForBotResponse: false });
+      if (this.state.messageCounter === this.state.messages.length) {
+        this.setState({ waitingForBotResponse: false });
+      }
     }, WAITING_TIMEOUT);
     await fetch(`${this.props.host}/conversations/${this.props.userId}/say?${getParametersString}`);
 
