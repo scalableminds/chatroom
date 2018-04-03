@@ -2,7 +2,7 @@
 
 [![CircleCI](https://circleci.com/gh/scalableminds/simple-chatroom.svg?style=svg)](https://circleci.com/gh/scalableminds/simple-chatroom)
 
-[<img src="https://npm-scalableminds.s3.amazonaws.com/%40scalableminds/simple-chatroom/demo.gif" alt="Demo" width="409" height="645" />](https://npm-scalableminds.s3.eu-central-1.amazonaws.com/@scalableminds/simple-chatroom@master/demo.html | width=360)
+<a href="https://npm-scalableminds.s3.eu-central-1.amazonaws.com/@scalableminds/simple-chatroom@master/demo.html"><img src="https://npm-scalableminds.s3.amazonaws.com/%40scalableminds/simple-chatroom/demo.gif" alt="Demo" width="409" height="645" /></a>
 
 [Watch our Chatroom in action](https://npm-scalableminds.s3.eu-central-1.amazonaws.com/@scalableminds/simple-chatroom@master/demo.html)
 
