@@ -3,8 +3,6 @@ jobs:
   build:
     docker:
       - image: circleci/node:9
-    tags:
-      only: /.*/
     working_directory: ~/repo
     steps:
       - checkout
@@ -65,3 +63,14 @@ jobs:
                 --acl public-read \
                 --region eu-central-1
             fi
+
+workflows:
+  version: 2
+  build-deploy:
+    jobs:
+      - build:
+          filters:
+            branches:
+              only: /.*/
+            tags:
+              only: /.*/
