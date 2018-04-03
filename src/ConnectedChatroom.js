@@ -33,7 +33,7 @@ export default class ConnectedChatroom extends React.Component<
     localMessages: [],
     isOpen: false,
     waitingForBotResponse: false,
-    messageCounter: 0,
+    messageCounter: -1,
   };
 
   waitingForBotResponseTimer: ?TimeoutID = null;
@@ -202,8 +202,8 @@ export default class ConnectedChatroom extends React.Component<
 
     const renderableMessages =
       welcomeMessage != null
-        ? [welcomeMessage, ...messages.slice(0, messageCounter), ...localMessages]
-        : [...messages.slice(0, messageCounter), ...localMessages];
+        ? [welcomeMessage, ...messages.slice(0, Math.max(0, messageCounter)), ...localMessages]
+        : [...messages.slice(0, Math.max(0, messageCounter)), ...localMessages];
 
     renderableMessages.sort((a, b) => a.time - b.time);
 
