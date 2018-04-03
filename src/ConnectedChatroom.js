@@ -1,5 +1,5 @@
 // @flow
-import React from "react";
+import React, { Component } from "react";
 import type { ElementRef } from "react";
 
 import type { ChatMessage } from "./Chatroom";
@@ -24,7 +24,7 @@ type ConnectedChatroomState = {
   messageCounter: number,
 };
 
-export default class ConnectedChatroom extends React.Component<
+export default class ConnectedChatroom extends Component<
   ConnectedChatroomProps,
   ConnectedChatroomState,
 > {

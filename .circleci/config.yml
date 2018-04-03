@@ -1,0 +1,57 @@
+version: 2
+jobs:
+  build:
+    docker:
+      - image: circleci/node:9
+    working_directory: ~/repo
+    steps:
+      - checkout
+
+      - run:
+          name: NPM Login
+          command: echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > ~/.npmrc
+
+      - run:
+          name: Install tools
+          command: |
+            sudo apt-get update
+            sudo apt-get install python3-pip jq -y
+            sudo pip3 install awscli --upgrade
+            aws --version
+
+      - run:
+          name: Install and build chatroom
+          command: yarn install && yarn build
+
+      - run:
+          name: Flow
+          command: yarn flow
+
+      - run:
+          name: Deploy to AWS S3
+          command: |
+            if [[ -n "$CIRCLE_TAG" ]]; then
+              aws s3 sync \
+                . \
+                s3://npm-scalableminds/$(cat package.json | jq -r .name)@$(cat package.json | jq -r .version)/ \
+                --exclude "node_modules/*" \
+                --exclude ".cache/*" \
+                --exclude ".git/*" \
+                --exclude ".circleci/*" \
+                --acl public-read \
+                --region eu-central-1
+
+              aws s3 sync \
+                . \
+                s3://npm-scalableminds/$(cat package.json | jq -r .name)/ \
+                --exclude "node_modules/*" \
+                --exclude ".cache/*" \
+                --exclude ".git/*" \
+                --exclude ".circleci/*" \
+                --acl public-read \
+                --region eu-central-1
+
+              # npm pub --access=public
+            else
+              echo "Skip non-tag versions"
+            fi

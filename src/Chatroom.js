@@ -1,10 +1,12 @@
 // @flow
 import "babel-polyfill";
-import React from "react";
+import React, { Component, Fragment } from "react";
 import ReactDOM from "react-dom";
 import isEqual from "lodash.isequal";
 
+// $FlowFixMe
 import "./Chatroom.scss";
+
 import { uuidv4 } from "./utils";
 import Message, { MessageTime } from "./Message";
 
@@ -34,14 +36,14 @@ const MessageGroup = ({ messages, onButtonClick }) => {
   const isBot = messages[0].username === "bot";
   const isButtonGroup = messages.length === 1 && messages[0].message.type === "button";
   return (
-    <React.Fragment>
+    <Fragment>
       {messages.map((message, i) => (
         <Message chat={message} key={i} onButtonClick={onButtonClick} />
       ))}
       {!isButtonGroup ? (
         <MessageTime time={messages[messages.length - 1].time} isBot={isBot} />
       ) : null}
-    </React.Fragment>
+    </Fragment>
   );
 };
 
@@ -55,7 +57,7 @@ type ChatroomProps = {
   onToggleChat: () => *,
 };
 
-export default class Chatroom extends React.Component<ChatroomProps, {}> {
+export default class Chatroom extends Component<ChatroomProps, {}> {
   lastRendered: number = 0;
   chatsRef: ?HTMLElement = null;
   inputRef: ?HTMLInputElement = null;
