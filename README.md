@@ -1,26 +1,68 @@
-# A Simple Chatroom component
+# React-based Chatroom Component for Rasa Stack
 
-```
-var chatroom = window.SimpleChatroom({
-    host: "http://localhost:5002",
-    title: "Chat with Mike",
-    container: document.querySelector(".container"),
-    welcomeMessage: "Hi, I am Mike. How may I help you?"
-});
-```
+[![CircleCI](https://circleci.com/gh/scalableminds/simple-chatroom.svg?style=svg)](https://circleci.com/gh/scalableminds/simple-chatroom)
 
+![Demo](https://npm-scalableminds.s3.amazonaws.com/%40scalableminds/simple-chatroom/demo.gif)
+
+[Watch our Chatroom in action](https://npm-scalableminds.s3.eu-central-1.amazonaws.com/@scalableminds/simple-chatroom@master/demo.html)
+
+[Try a chatbot in action](https://scalableminds.com/)
+
+## Features
+
+* React-based component
+* Markdown, Images, Buttons
+* Customizable with SASS variables
+* Queues consecutive bot messages for better readability
+* Demo mode included (for scripted screencasts)
+* Hosted on S3 for easy use
+
+## Usage
+
+```html
+<head>
+  <link rel="stylesheet" href="https://npm-scalableminds.s3.eu-central-1.amazonaws.com/@scalableminds/simple-chatroom@master/dist/Chatroom.css" />
+</head>
+<body>
+  <div class="chat-container"></div>
+
+  <script src="https://npm-scalableminds.s3.eu-central-1.amazonaws.com/@scalableminds/simple-chatroom@master/dist/Chatroom.js"/></script>
+  <script type="text/javascript">
+    var chatroom = window.SimpleChatroom({
+      host: "https://mike.bots.scm.io",
+      title: "Chat with Mike",
+      container: document.querySelector(".container"),
+      welcomeMessage: "Hi, I am Mike. How may I help you?"
+    });
+  </script>
+</body>
+```
 
 ## Development
-Install Dependencies
+
+### Install Dependencies
+
 ```
 yarn install
 ```
 
-Build the Simple Chatroom
+### Build the Simple Chatroom
+
 ```
-yarn build
-// or
 yarn watch
+yarn serve
 ```
 
-Open `index.html` in your browser.
+Open `http://localhost:8080/demo.html` in your browser.
+
+## Build
+
+```
+yarn build
+```
+
+Distributable files will be created in folder `dist`.
+
+## License
+
+AGPL v3
