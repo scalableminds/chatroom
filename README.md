@@ -6,7 +6,7 @@
 
 [Watch our Chatroom in action](https://npm-scalableminds.s3.eu-central-1.amazonaws.com/@scalableminds/simple-chatroom@master/demo.html)
 
-[Try a chatbot in action](https://scalableminds.com/)
+[Try a chatbot](https://scalableminds.com/)
 
 ## Features
 
@@ -66,3 +66,5 @@ Distributable files will be created in folder `dist`.
 ## License
 
 AGPL v3
+
+Made by [scalable minds](https://scalableminds.com)
