@@ -1,5 +1,5 @@
 {
-  "name": "@scalableminds/simple-chatroom",
+  "name": "@scalableminds/chatroom",
   "version": "0.6.4",
   "license": "AGPL-3.0",
   "dependencies": {
@@ -31,5 +31,5 @@
     "prepublish": "yarn build",
     "serve": "http-server"
   },
-  "main": "dist/index.js"
+  "main": "dist/Chatroom.js"
 }

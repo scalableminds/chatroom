@@ -13,8 +13,9 @@
 * React-based component
 * Markdown, Images, Buttons
 * Customizable with SASS variables
+* Generates a unique session id and keeps it in `sessionStorage`
 * Queues consecutive bot messages for better readability
-* Demo mode included (for scripted screencasts)
+* Demo mode included (ideal for scripted screencasts)
 * Hosted on S3 for easy use
 
 ## Usage

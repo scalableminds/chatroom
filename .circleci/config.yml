@@ -20,11 +20,11 @@ jobs:
             aws --version
 
       - run:
-          name: Install and build chatroom
+          name: Install dependencies and build
           command: yarn install && yarn build
 
       - run:
-          name: Flow
+          name: Check Flow types
           command: yarn flow
 
       - run:

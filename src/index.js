@@ -11,14 +11,14 @@ import ConnectedChatroom from "./ConnectedChatroom";
 
 const USERID_STORAGE_KEY = "simple-chatroom-cid";
 
-type SimpleChatroomOptions = {
+type ChatroomOptions = {
   host: string,
   title?: string,
   welcomeMessage?: string,
   container: HTMLElement,
 };
 
-window.SimpleChatroom = function(options: SimpleChatroomOptions) {
+window.Chatroom = function(options: ChatroomOptions) {
   let sessionUserId = window.sessionStorage.getItem(USERID_STORAGE_KEY);
 
   if (sessionUserId == null) {
@@ -41,12 +41,12 @@ window.SimpleChatroom = function(options: SimpleChatroomOptions) {
   };
 };
 
-type DemoSimpleChatroomOptions = {
+type DemoChatroomOptions = {
   title: string,
   container: HTMLElement,
 };
 
-window.DemoSimpleChatroom = function(options: DemoSimpleChatroomOptions) {
+window.DemoChatroom = function(options: DemoChatroomOptions) {
   this.demoIsPlaying = false;
 
   this.render = (messages: Array<ChatMessage>, showWaitingBubble: boolean = false) => {
