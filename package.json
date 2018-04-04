@@ -1,7 +1,7 @@
 {
-  "name": "@scalableminds/simple-chatroom",
+  "name": "@scalableminds/chatroom",
   "version": "0.6.4",
-  "license": "MIT",
+  "license": "AGPL-3.0",
   "dependencies": {
     "babel-polyfill": "^6.26.0",
     "lodash.isequal": "^4.5.0",
@@ -18,6 +18,7 @@
     "babel-preset-env": "^1.6.1",
     "babel-preset-react": "^6.24.1",
     "flow-bin": "^0.69.0",
+    "http-server": "^0.11.1",
     "node-sass": "^4.8.3",
     "parcel-bundler": "^1.6.2",
     "prettier": "^1.11.1"
@@ -27,7 +28,8 @@
     "watch": "parcel watch src/index.js --out-file Chatroom.js",
     "flow": "flow",
     "pretty": "prettier --write src/*",
-    "prepublish": "yarn build"
+    "prepare": "yarn build",
+    "serve": "http-server"
   },
-  "main": "dist/index.js"
+  "main": "dist/Chatroom.js"
 }
