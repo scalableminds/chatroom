@@ -44,9 +44,10 @@
 
 * Copy the `rasa_utils/bot_server_channel.py` to your project
 * Install the Python dependencies from `rasa_utils/requirements.txt`
-* Register the `BotServerInputChannel` with your Rasa Core `Agent`:
+* Register the `BotServerInputChannel` with your Rasa Core `Agent` (see below)
+* Run your bot. By default the server will be available at `0.0.0.0:5002`
 
-```python3
+```python
 from bot_server_channel import BotServerInputChannel
 
 # Creating the Interpreter and Agent
