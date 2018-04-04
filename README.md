@@ -1,10 +1,10 @@
 # React-based Chatroom Component for Rasa Stack
 
-[![CircleCI](https://circleci.com/gh/scalableminds/simple-chatroom.svg?style=svg)](https://circleci.com/gh/scalableminds/simple-chatroom)
+[![CircleCI](https://circleci.com/gh/scalableminds/chatroom.svg?style=svg)](https://circleci.com/gh/scalableminds/chatroom)
 
-<a href="https://npm-scalableminds.s3.eu-central-1.amazonaws.com/@scalableminds/simple-chatroom@master/demo.html"><img src="https://npm-scalableminds.s3.amazonaws.com/%40scalableminds/simple-chatroom/demo.gif" alt="Demo" width="409" height="645" /></a>
+<a href="https://npm-scalableminds.s3.eu-central-1.amazonaws.com/@scalableminds/chatroom@master/demo.html"><img src="https://npm-scalableminds.s3.amazonaws.com/%40scalableminds/chatroom/demo.gif" alt="Demo" width="409" height="645" /></a>
 
-[Watch our Chatroom in action](https://npm-scalableminds.s3.eu-central-1.amazonaws.com/@scalableminds/simple-chatroom@master/demo.html)
+[Watch our Chatroom in action](https://npm-scalableminds.s3.eu-central-1.amazonaws.com/@scalableminds/chatroom@master/demo.html)
 
 [Try a chatbot](https://scalableminds.com/)
 
@@ -17,17 +17,18 @@
 * Queues consecutive bot messages for better readability
 * Demo mode included (ideal for scripted screencasts)
 * Hosted on S3 for easy use
+* Includes a `BotServerChannel` for use with Rasa Core (under `rasa_utils`)
 
 ## Usage
 
 ```html
 <head>
-  <link rel="stylesheet" href="https://npm-scalableminds.s3.eu-central-1.amazonaws.com/@scalableminds/simple-chatroom@master/dist/Chatroom.css" />
+  <link rel="stylesheet" href="https://npm-scalableminds.s3.eu-central-1.amazonaws.com/@scalableminds/chatroom@master/dist/Chatroom.css" />
 </head>
 <body>
   <div class="chat-container"></div>
 
-  <script src="https://npm-scalableminds.s3.eu-central-1.amazonaws.com/@scalableminds/simple-chatroom@master/dist/Chatroom.js"/></script>
+  <script src="https://npm-scalableminds.s3.eu-central-1.amazonaws.com/@scalableminds/chatroom@master/dist/Chatroom.js"/></script>
   <script type="text/javascript">
     var chatroom = window.SimpleChatroom({
       host: "https://mike.bots.scm.io",
@@ -37,6 +38,27 @@
     });
   </script>
 </body>
+```
+
+### Use BotServerChannel in a Rasa Core project
+
+* Copy the `rasa_utils/bot_server_channel.py` to your project
+* Install the Python dependencies from `rasa_utils/requirements.txt`
+* Register the `BotServerInputChannel` with your Rasa Core `Agent`:
+
+```python3
+from bot_server_channel import BotServerInputChannel
+
+# Creating the Interpreter and Agent
+def load_agent(): ...
+
+# Creating the server
+def main_server():
+    agent = load_agent()
+    channel = BotServerInputChannel(agent)
+    agent.handle_channel(channel)
+
+main_server()
 ```
 
 ## Development
