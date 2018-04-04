@@ -28,7 +28,7 @@
     "watch": "parcel watch src/index.js --out-file Chatroom.js",
     "flow": "flow",
     "pretty": "prettier --write src/*",
-    "prepublish": "yarn build",
+    "prepare": "yarn build",
     "serve": "http-server"
   },
   "main": "dist/Chatroom.js"

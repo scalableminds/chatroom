@@ -8,10 +8,6 @@ jobs:
       - checkout
 
       - run:
-          name: NPM Login
-          command: echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > ~/.npmrc
-
-      - run:
           name: Install tools
           command: |
             sudo apt-get update
@@ -51,7 +47,9 @@ jobs:
                 --acl public-read \
                 --region eu-central-1
 
-              # npm pub --access=public
+              echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > ~/.npmrc
+              npm pub --access=public
+
             else
               aws s3 sync \
                 . \
