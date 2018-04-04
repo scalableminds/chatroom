@@ -47,6 +47,8 @@ type DemoSimpleChatroomOptions = {
 };
 
 window.DemoSimpleChatroom = function(options: DemoSimpleChatroomOptions) {
+  this.demoIsPlaying = false;
+
   this.render = (messages: Array<ChatMessage>, showWaitingBubble: boolean = false) => {
     this.ref = ReactDOM.render(
       <Chatroom
@@ -67,6 +69,9 @@ window.DemoSimpleChatroom = function(options: DemoSimpleChatroomOptions) {
     delay: number = 1000,
     keyDelay: number = 100,
   ) => {
+    if (this.demoIsPlaying) return;
+    this.demoIsPlaying = true;
+
     if (_messages.length === 0) return;
 
     const messages = _messages.map((m, i) => ({
@@ -101,6 +106,8 @@ window.DemoSimpleChatroom = function(options: DemoSimpleChatroomOptions) {
       }
       await sleep(delay);
     }
+
+    this.demoIsPlaying = false;
   };
   this.render([]);
 };
