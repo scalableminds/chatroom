@@ -30,7 +30,7 @@
 
   <script src="https://npm-scalableminds.s3.eu-central-1.amazonaws.com/@scalableminds/chatroom@master/dist/Chatroom.js"/></script>
   <script type="text/javascript">
-    var chatroom = window.SimpleChatroom({
+    var chatroom = window.Chatroom({
       host: "https://mike.bots.scm.io",
       title: "Chat with Mike",
       container: document.querySelector(".container"),
