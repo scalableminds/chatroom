@@ -52,7 +52,7 @@ jobs:
             if [[ -n "$CIRCLE_TAG" ]]; then
               aws s3 sync \
                 . \
-                s3://npm-scalableminds/$(cat package.json | jq -r .name)@$(cat package.json | jq -r .version)/ \
+                s3://npm-scalableminds/$(zcat package.json | jq -r .name)@$(zcat package.json | jq -r .version)/ \
                 --exclude "node_modules/*" \
                 --exclude ".cache/*" \
                 --exclude ".git/*" \
@@ -63,7 +63,7 @@ jobs:
 
               aws s3 sync \
                 . \
-                s3://npm-scalableminds/$(cat package.json | jq -r .name)/ \
+                s3://npm-scalableminds/$(zcat package.json | jq -r .name)/ \
                 --exclude "node_modules/*" \
                 --exclude ".cache/*" \
                 --exclude ".git/*" \
@@ -75,7 +75,7 @@ jobs:
             else
               aws s3 sync \
                 . \
-                s3://npm-scalableminds/$(cat package.json | jq -r .name)@$CIRCLE_BRANCH/ \
+                s3://npm-scalableminds/$(zcat package.json | jq -r .name)@$CIRCLE_BRANCH/ \
                 --exclude "node_modules/*" \
                 --exclude ".cache/*" \
                 --exclude ".git/*" \
