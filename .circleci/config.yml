@@ -24,6 +24,29 @@ jobs:
           command: yarn flow
 
       - run:
+          name: Publish NPM module
+          command: |
+            if [[ -n "$CIRCLE_TAG" ]]; then
+              echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > ~/.npmrc
+              npm pub --access=public
+            else
+              echo "Skipping NPM publication for non-tags"
+            fi
+
+      - run:
+          name: Compress files
+          command: |
+            find . \
+              -type f \
+              -not -path "./node_modules/*" \
+              -not -path "./.cache/*" \
+              -not -path "./.git/*" \
+              -not -path "./.circleci/*" \
+              -exec gzip -9 '{}' \; \
+              -exec mv '{}.gz' '{}' \; \
+              -exec echo '{}' \;
+
+      - run:
           name: Deploy to AWS S3
           command: |
             if [[ -n "$CIRCLE_TAG" ]]; then
@@ -35,7 +58,8 @@ jobs:
                 --exclude ".git/*" \
                 --exclude ".circleci/*" \
                 --acl public-read \
-                --region eu-central-1
+                --region eu-central-1 \
+                --content-encoding gzip
 
               aws s3 sync \
                 . \
@@ -45,10 +69,8 @@ jobs:
                 --exclude ".git/*" \
                 --exclude ".circleci/*" \
                 --acl public-read \
-                --region eu-central-1
-
-              echo "//registry.npmjs.org/:_authToken=${NPM_TOKEN}" > ~/.npmrc
-              npm pub --access=public
+                --region eu-central-1 \
+                --content-encoding gzip
 
             else
               aws s3 sync \
@@ -59,7 +81,8 @@ jobs:
                 --exclude ".git/*" \
                 --exclude ".circleci/*" \
                 --acl public-read \
-                --region eu-central-1
+                --region eu-central-1 \
+                --content-encoding gzip
             fi
 
 workflows:
