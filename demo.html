@@ -9,7 +9,10 @@
   </head>
   <body>
     <div class="chat-container"></div>
-    <div style="text-align: center;"><button id="demo-button">Start Demo</button></div>
+    <div style="text-align: center;">
+      <button class="chat-demo-button" id="demo-button">Start Demo</button>
+      <button class="chat-demo-button" id="clear-button">Clear</button>
+    </div>
     <script src="./dist/Chatroom.js"></script>
     <script type="text/javascript">
 window.chatroom = new window.DemoChatroom({
@@ -60,7 +63,11 @@ window.demoMessages = [
 function startDemo() {
   window.chatroom.demo(window.demoMessages);
 }
+function clearDemo() {
+  window.chatroom.clear();
+}
 document.getElementById("demo-button").addEventListener("click", startDemo, false);
+document.getElementById("clear-button").addEventListener("click", clearDemo, false);
 window.addEventListener("load", startDemo, false);
 </script>
   </body>

@@ -109,5 +109,8 @@ window.DemoChatroom = function(options: DemoChatroomOptions) {
 
     this.demoIsPlaying = false;
   };
+
+  this.clear = () => { this.render([]); };
+
   this.render([]);
 };

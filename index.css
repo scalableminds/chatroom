@@ -17,7 +17,7 @@
   }
 }
 
-#demo-button {
+.chat-demo-button {
   border-radius: 3px;
   color: #343d4e;
   border: 2px solid #343d4e;
@@ -27,9 +27,9 @@
   font-size: 12px;
   cursor: pointer;
 }
-#demo-button:hover {
+.chat-demo-button:hover {
   background-color: rgba(52, 61, 78, 0.3);
 }
-#demo-button:active {
+.chat-demo-button:active {
   background-color: rgba(52, 61, 78, 0.8);
 }
