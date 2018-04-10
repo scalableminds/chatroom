@@ -15,7 +15,7 @@ type ChatroomOptions = {
   host: string,
   title?: string,
   welcomeMessage?: string,
-  container: HTMLElement,
+  container: HTMLElement
 };
 
 window.Chatroom = function(options: ChatroomOptions) {
@@ -33,7 +33,7 @@ window.Chatroom = function(options: ChatroomOptions) {
       title={options.title || "Chat"}
       welcomeMessage={options.welcomeMessage}
     />,
-    options.container,
+    options.container
   );
 
   this.openChat = () => {
@@ -43,13 +43,16 @@ window.Chatroom = function(options: ChatroomOptions) {
 
 type DemoChatroomOptions = {
   title: string,
-  container: HTMLElement,
+  container: HTMLElement
 };
 
 window.DemoChatroom = function(options: DemoChatroomOptions) {
   this.demoIsPlaying = false;
 
-  this.render = (messages: Array<ChatMessage>, showWaitingBubble: boolean = false) => {
+  this.render = (
+    messages: Array<ChatMessage>,
+    showWaitingBubble: boolean = false
+  ) => {
     this.ref = ReactDOM.render(
       <Chatroom
         messages={messages}
@@ -60,15 +63,18 @@ window.DemoChatroom = function(options: DemoChatroomOptions) {
         onToggleChat={noop}
         onSendMessage={noop}
       />,
-      options.container,
+      options.container
     );
   };
 
-  this.demo = async (
+  const sleepEffect = (time: number) => ({ type: "SLEEP", time });
+
+  // Works like redux-saga
+  function* demoSaga(
     _messages: Array<ChatMessage>,
     delay: number = 1000,
-    keyDelay: number = 100,
-  ) => {
+    keyDelay: number = 100
+  ) {
     if (this.demoIsPlaying) return;
     this.demoIsPlaying = true;
 
@@ -78,7 +84,7 @@ window.DemoChatroom = function(options: DemoChatroomOptions) {
       message: m.message,
       username: m.username || "user",
       time: Date.now() + delay * i,
-      uuid: uuidv4(),
+      uuid: uuidv4()
     }));
 
     for (let i = -1; i < messages.length; i++) {
@@ -88,29 +94,56 @@ window.DemoChatroom = function(options: DemoChatroomOptions) {
         const currentMessage = messages[i];
 
         // Show waiting when next message is a bot message
-        const showWaitingBubble = i + 1 < messages.length && messages[i + 1].username === "bot";
+        const showWaitingBubble =
+          i + 1 < messages.length && messages[i + 1].username === "bot";
 
         // Show typing animation if current message is a user message
-        if (currentMessage.username !== "bot" && currentMessage.message.type === "text") {
+        if (
+          currentMessage.username !== "bot" &&
+          currentMessage.message.type === "text"
+        ) {
           const messageText = currentMessage.message.text;
           this.ref.getInputRef().focus();
-          for (let j = 0; j < messageText.length; j++) {
+          for (let j = 0; j < messageText.length && this.demoIsPlaying; j++) {
             this.ref.getInputRef().value = messageText.substring(0, j + 1);
-            await sleep(keyDelay);
+            yield sleepEffect(keyDelay);
           }
-          await sleep(delay);
+          yield sleepEffect(delay);
           this.ref.getInputRef().value = "";
           this.ref.getInputRef().blur();
         }
         this.render(messages.slice(0, i + 1), showWaitingBubble);
       }
-      await sleep(delay);
+      yield sleepEffect(delay);
     }
 
     this.demoIsPlaying = false;
+  }
+
+  this.demo = async (
+    messages: Array<ChatMessage>,
+    delay: number = 1000,
+    keyDelay: number = 100
+  ) => {
+    const saga = demoSaga.call(this, messages, delay, keyDelay);
+    let currentEffect = saga.next();
+    while (!currentEffect.done && this.demoIsPlaying) {
+      if (currentEffect.value.type === "SLEEP") {
+        await sleep(currentEffect.value.time);
+      }
+      currentEffect = saga.next();
+    }
+
+    // Cleanup
+    this.render([]);
+    this.ref.getInputRef().value = "";
+    this.ref.getInputRef().blur();
   };
 
-  this.clear = () => { this.render([]); };
+  this.clear = () => {
+    this.demoIsPlaying = false;
+    this.render([]);
+  };
 
   this.render([]);
 };

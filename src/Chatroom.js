@@ -17,13 +17,13 @@ export type ChatMessage = {
   message:
     | {
         type: "text",
-        text: string,
+        text: string
       }
     | { type: "image", image: string }
     | { type: "button", buttons: Array<{ payload: string, title: string }> },
   username: string,
   time: number,
-  uuid: string,
+  uuid: string
 };
 
 const WaitingBubble = () => (
@@ -34,7 +34,8 @@ const WaitingBubble = () => (
 
 const MessageGroup = ({ messages, onButtonClick }) => {
   const isBot = messages[0].username === "bot";
-  const isButtonGroup = messages.length === 1 && messages[0].message.type === "button";
+  const isButtonGroup =
+    messages.length === 1 && messages[0].message.type === "button";
   return (
     <Fragment>
       {messages.map((message, i) => (
@@ -54,7 +55,7 @@ type ChatroomProps = {
   showWaitingBubble: boolean,
   onButtonClick: (message: string, payload: string) => *,
   onSendMessage: (message: string) => *,
-  onToggleChat: () => *,
+  onToggleChat: () => *
 };
 
 export default class Chatroom extends Component<ChatroomProps, {}> {
@@ -77,7 +78,10 @@ export default class Chatroom extends Component<ChatroomProps, {}> {
   }
 
   shouldComponentUpdate(nextProps: ChatroomProps) {
-    return !isEqual(nextProps, this.props) || Date.now() > this.lastRendered + REDRAW_INTERVAL;
+    return (
+      !isEqual(nextProps, this.props) ||
+      Date.now() > this.lastRendered + REDRAW_INTERVAL
+    );
   }
 
   getInputRef(): HTMLInputElement {
@@ -156,7 +160,11 @@ export default class Chatroom extends Component<ChatroomProps, {}> {
           }}
         >
           {messageGroups.map((group, i) => (
-            <MessageGroup messages={group} key={i} onButtonClick={this.props.onButtonClick} />
+            <MessageGroup
+              messages={group}
+              key={i}
+              onButtonClick={this.props.onButtonClick}
+            />
           ))}
           {showWaitingBubble ? <WaitingBubble /> : null}
         </div>

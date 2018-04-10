@@ -14,26 +14,26 @@ type ConnectedChatroomProps = {
   userId: string,
   host: string,
   welcomeMessage: ?string,
-  title: string,
+  title: string
 };
 type ConnectedChatroomState = {
   messages: Array<ChatMessage>,
   localMessages: Array<ChatMessage>,
   isOpen: boolean,
   waitingForBotResponse: boolean,
-  messageCounter: number,
+  messageCounter: number
 };
 
 export default class ConnectedChatroom extends Component<
   ConnectedChatroomProps,
-  ConnectedChatroomState,
+  ConnectedChatroomState
 > {
   state = {
     messages: [],
     localMessages: [],
     isOpen: false,
     waitingForBotResponse: false,
-    messageCounter: -1,
+    messageCounter: -1
   };
 
   waitingForBotResponseTimer: ?TimeoutID = null;
@@ -46,7 +46,10 @@ export default class ConnectedChatroom extends Component<
     this.poll();
   }
 
-  componentDidUpdate(prevProps: ConnectedChatroomProps, prevState: ConnectedChatroomState) {
+  componentDidUpdate(
+    prevProps: ConnectedChatroomProps,
+    prevState: ConnectedChatroomState
+  ) {
     if (!prevState.isOpen && this.state.isOpen) {
       this.fetchMessages();
     }
@@ -71,21 +74,21 @@ export default class ConnectedChatroom extends Component<
       message: { type: "text", text: messageText },
       time: Date.now(),
       username: this.props.userId,
-      uuid: uuidv4(),
+      uuid: uuidv4()
     };
 
     if (!MESSAGE_BLACKLIST.includes(messageText)) {
       this.setState({
         localMessages: [...this.state.localMessages, messageObj],
         // Reveal all queued bot messages when the user sends a new message
-        messageCounter: this.state.messages.length,
+        messageCounter: this.state.messages.length
       });
     }
 
     const getParameters = {
       message: messageObj.message.text,
       payload: payload,
-      uuid: messageObj.uuid,
+      uuid: messageObj.uuid
     };
     const getParametersString = Object.keys(getParameters)
       .filter(k => getParameters[k] != null)
@@ -101,7 +104,11 @@ export default class ConnectedChatroom extends Component<
         this.setState({ waitingForBotResponse: false });
       }
     }, WAITING_TIMEOUT);
-    await fetch(`${this.props.host}/conversations/${this.props.userId}/say?${getParametersString}`);
+    await fetch(
+      `${this.props.host}/conversations/${
+        this.props.userId
+      }/say?${getParametersString}`
+    );
 
     if (window.ga != null) {
       window.ga("send", "event", "chat", "chat-message-sent");
@@ -110,7 +117,9 @@ export default class ConnectedChatroom extends Component<
   };
 
   async fetchMessages() {
-    const res = await fetch(`${this.props.host}/conversations/${this.props.userId}/log`);
+    const res = await fetch(
+      `${this.props.host}/conversations/${this.props.userId}/log`
+    );
     const messages = await res.json();
 
     // Fix dates
@@ -120,7 +129,7 @@ export default class ConnectedChatroom extends Component<
 
     // Remove redundant local messages
     const localMessages = this.state.localMessages.filter(
-      m => !messages.some(n => n.uuid === m.uuid),
+      m => !messages.some(n => n.uuid === m.uuid)
     );
 
     // Bot messages should be displayed in a queued manner. Not all at once
@@ -138,7 +147,8 @@ export default class ConnectedChatroom extends Component<
       let lastUserMessageIndex = messages.length - 1;
       for (
         ;
-        lastUserMessageIndex >= 0 && messages[lastUserMessageIndex].username === "bot";
+        lastUserMessageIndex >= 0 &&
+        messages[lastUserMessageIndex].username === "bot";
         lastUserMessageIndex--
       );
 
@@ -148,11 +158,18 @@ export default class ConnectedChatroom extends Component<
     // We might still be waiting on bot responses,
     // if there are unconfirmed user messages or missing replies
     const waitingForBotResponse =
-      (this.state.waitingForBotResponse && messageCounter !== messages.length) ||
+      (this.state.waitingForBotResponse &&
+        messageCounter !== messages.length) ||
       (localMessages.length > 0 &&
-        (messages.length === 0 || messages[messages.length - 1].username !== "bot"));
+        (messages.length === 0 ||
+          messages[messages.length - 1].username !== "bot"));
 
-    this.setState({ messages, localMessages, waitingForBotResponse, messageCounter });
+    this.setState({
+      messages,
+      localMessages,
+      waitingForBotResponse,
+      messageCounter
+    });
   }
 
   async poll() {
@@ -187,7 +204,12 @@ export default class ConnectedChatroom extends Component<
   };
 
   render() {
-    const { messages, localMessages, waitingForBotResponse, messageCounter } = this.state;
+    const {
+      messages,
+      localMessages,
+      waitingForBotResponse,
+      messageCounter
+    } = this.state;
 
     const welcomeMessage =
       this.props.welcomeMessage != null
@@ -196,15 +218,19 @@ export default class ConnectedChatroom extends Component<
             time: 0,
             message: {
               text: this.props.welcomeMessage,
-              type: "text",
+              type: "text"
             },
-            uuid: "9b9c4e2d-eb7f-4425-b23c-30c25bd7f507",
+            uuid: "9b9c4e2d-eb7f-4425-b23c-30c25bd7f507"
           }
         : null;
 
     const renderableMessages =
       welcomeMessage != null
-        ? [welcomeMessage, ...messages.slice(0, Math.max(0, messageCounter)), ...localMessages]
+        ? [
+            welcomeMessage,
+            ...messages.slice(0, Math.max(0, messageCounter)),
+            ...localMessages
+          ]
         : [...messages.slice(0, Math.max(0, messageCounter)), ...localMessages];
 
     renderableMessages.sort((a, b) => a.time - b.time);

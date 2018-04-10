@@ -7,14 +7,17 @@ import type { ChatMessage } from "./Chatroom";
 
 type MessageTimeProps = {
   time: number,
-  isBot: boolean,
+  isBot: boolean
 };
 export const MessageTime = ({ time, isBot }: MessageTimeProps) => {
   if (time === 0) return null;
 
   const messageTime = Math.min(Date.now(), time);
   return (
-    <li className={`time ${isBot ? "left" : "right"}`} title={new Date(messageTime).toISOString()}>
+    <li
+      className={`time ${isBot ? "left" : "right"}`}
+      title={new Date(messageTime).toISOString()}
+    >
       {moment(messageTime).fromNow()}
     </li>
   );
@@ -22,7 +25,7 @@ export const MessageTime = ({ time, isBot }: MessageTimeProps) => {
 
 type MessageProps = {
   chat: ChatMessage,
-  onButtonClick: (title: string, payload: string) => void,
+  onButtonClick: (title: string, payload: string) => void
 };
 const Message = ({ chat, onButtonClick }: MessageProps) => {
   const message = chat.message;
@@ -32,7 +35,11 @@ const Message = ({ chat, onButtonClick }: MessageProps) => {
       return (
         <ul className="chat-buttons">
           {message.buttons.map(({ payload, title }) => (
-            <li className="chat-button" key={payload} onClick={() => onButtonClick(title, payload)}>
+            <li
+              className="chat-button"
+              key={payload}
+              onClick={() => onButtonClick(title, payload)}
+            >
               {title}
             </li>
           ))}
@@ -61,7 +68,7 @@ const Message = ({ chat, onButtonClick }: MessageProps) => {
               "link",
               "list",
               "listItem",
-              "image",
+              "image"
             ]}
             renderers={{
               paragraph: ({ children }) => <span>{children}</span>,
@@ -69,7 +76,7 @@ const Message = ({ chat, onButtonClick }: MessageProps) => {
                 <a href={href} target="_blank">
                   {children}
                 </a>
-              ),
+              )
             }}
             plugins={[breaks]}
           />
