@@ -16,42 +16,49 @@ window.chatroom = new window.DemoChatroom({
   title: "Chat with a bot",
   container: document.querySelector(".chat-container"),
 });
+
+window.demoMessages = [
+  {
+    message: { type: "text", text: "Hello how can I help you?" },
+    username: "bot"
+  },
+  {
+    message: { type: "text", text: "I need glue" },
+    username: "user"
+  },
+  {
+    message: {
+      type: "text",
+      text:
+        "We have many sorts of adhesives. Let me help you find the right one."
+    },
+    username: "bot"
+  },
+  {
+    message: {
+      type: "text",
+      text: "Are you bonding magnets?"
+    },
+    username: "bot"
+  },
+  {
+    message: {
+      type: "button",
+      buttons: [
+        { title: "Yes", payload: "Yes" },
+        { title: "No", payload: "No" }
+      ]
+    },
+    username: "bot"
+  },
+  {
+    message: { type: "text", text: "No" },
+    username: "user"
+  }
+];
+
 function startDemo() {
-  window.chatroom.demo([
-    {
-      message: { type: "text", text: "Hello how can I help you?" },
-      username: "bot",
-    },
-    {
-      message: { type: "text", text: "I need glue" },
-      username: "user",
-    },
-    {
-      message: {
-        type: "text",
-        text: "We have many sorts of adhesives. Let me help you find the right one.",
-      },
-      username: "bot",
-    },
-    {
-      message: {
-        type: "text",
-        text: "Are you bonding magnets?",
-      },
-      username: "bot",
-    },
-    {
-      message: {
-        type: "button",
-        buttons: [{ title: "Yes", payload: "Yes" }, { title: "No", payload: "No" }],
-      },
-      username: "bot",
-    },
-    {
-      message: { type: "text", text: "No" },
-      username: "user",
-    },
-  ]);
+  window.chatroom.demo(window.demoMessages);
 }
 document.getElementById("demo-button").addEventListener("click", startDemo, false);
 window.addEventListener("load", startDemo, false);
