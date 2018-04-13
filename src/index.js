@@ -15,7 +15,7 @@ type ChatroomOptions = {
   host: string,
   title?: string,
   welcomeMessage?: string,
-  container: HTMLElement
+  container: HTMLElement,
 };
 
 window.Chatroom = function(options: ChatroomOptions) {
@@ -33,7 +33,7 @@ window.Chatroom = function(options: ChatroomOptions) {
       title={options.title || "Chat"}
       welcomeMessage={options.welcomeMessage}
     />,
-    options.container
+    options.container,
   );
 
   this.openChat = () => {
@@ -43,16 +43,13 @@ window.Chatroom = function(options: ChatroomOptions) {
 
 type DemoChatroomOptions = {
   title: string,
-  container: HTMLElement
+  container: HTMLElement,
 };
 
 window.DemoChatroom = function(options: DemoChatroomOptions) {
   this.demoIsPlaying = false;
 
-  this.render = (
-    messages: Array<ChatMessage>,
-    showWaitingBubble: boolean = false
-  ) => {
+  this.render = (messages: Array<ChatMessage>, showWaitingBubble: boolean = false) => {
     this.ref = ReactDOM.render(
       <Chatroom
         messages={messages}
@@ -63,18 +60,14 @@ window.DemoChatroom = function(options: DemoChatroomOptions) {
         onToggleChat={noop}
         onSendMessage={noop}
       />,
-      options.container
+      options.container,
     );
   };
 
   const sleepEffect = (time: number) => ({ type: "SLEEP", time });
 
   // Works like redux-saga
-  function* demoSaga(
-    _messages: Array<ChatMessage>,
-    delay: number = 1000,
-    keyDelay: number = 100
-  ) {
+  function* demoSaga(_messages: Array<ChatMessage>, delay: number = 1000, keyDelay: number = 100) {
     if (this.demoIsPlaying) return;
     this.demoIsPlaying = true;
 
@@ -84,24 +77,20 @@ window.DemoChatroom = function(options: DemoChatroomOptions) {
       message: m.message,
       username: m.username || "user",
       time: Date.now() + delay * i,
-      uuid: uuidv4()
+      uuid: uuidv4(),
     }));
 
     for (let i = -1; i < messages.length; i++) {
-      if (i < 0 && messages[0].username === "bot") {
-        this.render([], true);
+      if (i < 0) {
+        this.render([], messages[0].username === "bot");
       } else {
         const currentMessage = messages[i];
 
         // Show waiting when next message is a bot message
-        const showWaitingBubble =
-          i + 1 < messages.length && messages[i + 1].username === "bot";
+        const showWaitingBubble = i + 1 < messages.length && messages[i + 1].username === "bot";
 
         // Show typing animation if current message is a user message
-        if (
-          currentMessage.username !== "bot" &&
-          currentMessage.message.type === "text"
-        ) {
+        if (currentMessage.username !== "bot" && currentMessage.message.type === "text") {
           const messageText = currentMessage.message.text;
           this.ref.getInputRef().focus();
           for (let j = 0; j < messageText.length && this.demoIsPlaying; j++) {
@@ -123,7 +112,7 @@ window.DemoChatroom = function(options: DemoChatroomOptions) {
   this.demo = async (
     messages: Array<ChatMessage>,
     delay: number = 1000,
-    keyDelay: number = 100
+    keyDelay: number = 100,
   ) => {
     const saga = demoSaga.call(this, messages, delay, keyDelay);
     let currentEffect = saga.next();
@@ -135,9 +124,11 @@ window.DemoChatroom = function(options: DemoChatroomOptions) {
     }
 
     // Cleanup
-    this.render([]);
-    this.ref.getInputRef().value = "";
-    this.ref.getInputRef().blur();
+    if (!currentEffect.done) {
+      this.render([]);
+      this.ref.getInputRef().value = "";
+      this.ref.getInputRef().blur();
+    }
   };
 
   this.clear = () => {
