@@ -95,7 +95,7 @@ class BotServerInputChannel(InputChannel):
         self.message_store = message_store
         self.static_files = static_files
         self.on_message = lambda x: None
-        self.config = {"cors_origins": ["*"]}
+        self.cors_origins = ["*"]
         self.agent = agent
         self.port = port
 
@@ -121,7 +121,7 @@ class BotServerInputChannel(InputChannel):
                 "display_name" in tracker.current_slot_values()
                 and tracker.get_slot("display_name") != display_name
             ):
-                tracker.update(SlotSet("display_name", display_name))
+                tracker.update(SlotSet("display_name", display_name.decode("utf-8")))
                 self.agent.tracker_store.save(tracker)
 
         if message == "_restart":
@@ -131,11 +131,13 @@ class BotServerInputChannel(InputChannel):
                 self.message_store.log(
                     cid,
                     cid,
-                    {"type": "text", "text": message},
+                    {"type": "text", "text": message.decode("utf-8")},
                     _uuid[0].decode("utf-8"),
                 )
             else:
-                self.message_store.log(cid, cid, {"type": "text", "text": message})
+                self.message_store.log(
+                    cid, cid, {"type": "text", "text": message.decode("utf-8")}
+                )
 
         if len(_payload) > 0:
             self.on_message(
