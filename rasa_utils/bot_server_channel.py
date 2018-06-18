@@ -91,7 +91,7 @@ class BotServerInputChannel(InputChannel):
         self.message_store = message_store
         self.static_files = static_files
         self.on_message = lambda x: None
-        self.config = {'cors_origins': [u'*']}
+        self.cors_origins = [u'*']
         self.agent = agent
         self.port = port
 
