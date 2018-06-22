@@ -22,7 +22,7 @@ logger = logging.getLogger()
 
 class FileMessageStore:
 
-    DEFAULT_FILENAME = 'message_store.json'
+    DEFAULT_FILENAME = "message_store.json"
 
     def __init__(self, filename=DEFAULT_FILENAME):
         self._store = defaultdict(list)
@@ -36,12 +36,14 @@ class FileMessageStore:
     def log(self, cid, username, message, uuid=None):
         if uuid is None:
             uuid = str(uuid4())
-        self._store[cid].append({
-            "time": datetime.utcnow().isoformat(),
-            "username": username,
-            "message": message,
-            "uuid": uuid
-        })
+        self._store[cid].append(
+            {
+                "time": datetime.utcnow().isoformat(),
+                "username": username,
+                "message": message,
+                "uuid": uuid,
+            }
+        )
         self.save()
 
     def clear(self, cid):
@@ -60,8 +62,7 @@ class BotServerOutputChannel(OutputChannel):
         self.message_store = message_store
 
     def send_text_message(self, recipient_id, message):
-        self.message_store.log(
-            recipient_id, 'bot', {'type': "text", 'text': message})
+        self.message_store.log(recipient_id, "bot", {"type": "text", "text": message})
 
     def send_text_with_buttons(self, recipient_id, message, buttons, **kwargs):
         # type: (Text, Text, List[Dict[Text, Any]], **Any) -> None
@@ -70,22 +71,25 @@ class BotServerOutputChannel(OutputChannel):
 
         self.send_text_message(recipient_id, message)
         self.message_store.log(
-            recipient_id, 'bot', {'type': "button", 'buttons': buttons})
+            recipient_id, "bot", {"type": "button", "buttons": buttons}
+        )
 
     def send_image_url(self, recipient_id, image_url):
         # type: (Text, Text) -> None
         """Sends an image. Default will just post the url as a string."""
 
         self.message_store.log(
-            recipient_id, 'bot', {'type': "image", 'image': image_url})
+            recipient_id, "bot", {"type": "image", "image": image_url}
+        )
 
 
 class BotServerInputChannel(InputChannel):
 
     app = Klein()
 
-    def __init__(self, agent, port=5002, static_files=None,
-                 message_store=FileMessageStore()):
+    def __init__(
+        self, agent, port=5002, static_files=None, message_store=FileMessageStore()
+    ):
         logging.basicConfig(level="DEBUG")
         logging.captureWarnings(True)
         self.message_store = message_store
@@ -95,56 +99,68 @@ class BotServerInputChannel(InputChannel):
         self.agent = agent
         self.port = port
 
-    @app.route("/conversations/<cid>/log", methods=['GET'])
+    @app.route("/conversations/<cid>/log", methods=["GET"])
     @check_cors
     def show_log(self, request, cid):
-        request.setHeader('Content-Type', 'application/json')
+        request.setHeader("Content-Type", "application/json")
         return json.dumps(self.message_store[cid])
 
-    @app.route("/conversations/<cid>/say", methods=['GET'])
+    @app.route("/conversations/<cid>/say", methods=["GET"])
     @check_cors
     def say(self, request, cid):
-        message, = request.args.get("message", [])
-        _payload = request.args.get("payload", [])
-        _display_name = request.args.get("display_name", [])
-        _uuid = request.args.get("uuid", [])
+        message, = request.args.get(b"message", [])
+        _payload = request.args.get(b"payload", [])
+        _display_name = request.args.get(b"display_name", [])
+        _uuid = request.args.get(b"uuid", [])
         logger.info(message)
 
         if len(_display_name) > 0:
             display_name, = _display_name
             tracker = self.agent.tracker_store.get_or_create_tracker(cid)
-            if "display_name" in tracker.current_slot_values() and \
-                    tracker.get_slot("display_name") != display_name:
-                tracker.update(SlotSet("display_name", display_name))
+            if (
+                "display_name" in tracker.current_slot_values()
+                and tracker.get_slot("display_name") != display_name
+            ):
+                tracker.update(SlotSet("display_name", display_name.decode("utf-8")))
                 self.agent.tracker_store.save(tracker)
 
-        if message == '_restart':
+        if message == "_restart":
             self.message_store.clear(cid)
         else:
             if len(_uuid) > 0:
-                self.message_store.log(cid, cid,
-                                       {'type': "text", 'text': message},
-                                       _uuid[0].decode("utf-8"))
+                self.message_store.log(
+                    cid,
+                    cid,
+                    {"type": "text", "text": message.decode("utf-8")},
+                    _uuid[0].decode("utf-8"),
+                )
             else:
-                self.message_store.log(cid, cid,
-                                       {'type': "text", 'text': message})
+                self.message_store.log(
+                    cid, cid, {"type": "text", "text": message.decode("utf-8")}
+                )
 
         if len(_payload) > 0:
-            self.on_message(UserMessage(
-                _payload[0].decode("utf-8"),
-                output_channel=BotServerOutputChannel(self.message_store),
-                sender_id=cid))
+            self.on_message(
+                UserMessage(
+                    _payload[0].decode("utf-8"),
+                    output_channel=BotServerOutputChannel(self.message_store),
+                    sender_id=cid,
+                )
+            )
         else:
-            self.on_message(UserMessage(
-                message.decode("utf-8"),
-                output_channel=BotServerOutputChannel(self.message_store),
-                sender_id=cid))
+            self.on_message(
+                UserMessage(
+                    message.decode("utf-8"),
+                    output_channel=BotServerOutputChannel(self.message_store),
+                    sender_id=cid,
+                )
+            )
 
-    @app.route('/health', methods=['GET'])
+    @app.route("/health", methods=["GET"])
     def health(self, request):
         return "healthy"
 
-    @app.route('/', branch=True, methods=['GET'])
+    @app.route("/", branch=True, methods=["GET"])
     @check_cors
     def static(self, request):
         if self.static_files is None:
