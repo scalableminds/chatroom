@@ -40,7 +40,15 @@ const Message = ({ chat, onButtonClick }: MessageProps) => {
               key={payload}
               onClick={() => onButtonClick(title, payload)}
             >
-              {title}
+              <Markdown
+                source={title}
+                skipHtml={false}
+                allowedTypses={["root", "break"]}
+                renderers={{
+                  paragraph: ({ children }) => <span>{children}</span>
+                }}
+                plugins={[breaks]}
+              />
             </li>
           ))}
         </ul>
