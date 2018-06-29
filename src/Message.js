@@ -3,6 +3,7 @@ import React from "react";
 import Markdown from "react-markdown";
 import breaks from "remark-breaks";
 import moment from "moment";
+import classnames from "classnames";
 import type { ChatMessage } from "./Chatroom";
 
 type MessageTimeProps = {
@@ -15,7 +16,7 @@ export const MessageTime = ({ time, isBot }: MessageTimeProps) => {
   const messageTime = Math.min(Date.now(), time);
   return (
     <li
-      className={`time ${isBot ? "left" : "right"}`}
+      className={classnames("time", isBot ? "left" : "right")}
       title={new Date(messageTime).toISOString()}
     >
       {moment(messageTime).fromNow()}
@@ -34,9 +35,11 @@ const Message = ({ chat, onButtonClick }: MessageProps) => {
     case "button":
       return (
         <ul className="chat-buttons">
-          {message.buttons.map(({ payload, title }) => (
+          {message.buttons.map(({ payload, title, selected }) => (
             <li
-              className="chat-button"
+              className={classnames("chat-button", {
+                "chat-button-selected": selected
+              })}
               key={payload}
               onClick={() => onButtonClick(title, payload)}
             >
@@ -62,7 +65,7 @@ const Message = ({ chat, onButtonClick }: MessageProps) => {
       );
     default:
       return (
-        <li className={`chat ${isBot ? "left" : "right"}`}>
+        <li className={classnames("chat", isBot ? "left" : "right")}>
           <Markdown
             className="text"
             source={message.text}

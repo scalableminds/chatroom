@@ -92,6 +92,7 @@ window.DemoChatroom = function(options: DemoChatroomOptions) {
         this.render([], messages[0].username === "bot");
       } else {
         const currentMessage = messages[i];
+        const currentMessageContent = currentMessage.message;
 
         // Show waiting when next message is a bot message
         const showWaitingBubble =
@@ -100,9 +101,9 @@ window.DemoChatroom = function(options: DemoChatroomOptions) {
         // Show typing animation if current message is a user message
         if (
           currentMessage.username !== "bot" &&
-          currentMessage.message.type === "text"
+          currentMessageContent.type === "text"
         ) {
-          const messageText = currentMessage.message.text;
+          const messageText = currentMessageContent.text;
           this.ref.getInputRef().focus();
           for (let j = 0; j < messageText.length && this.demoIsPlaying; j++) {
             const currentMessageText = messageText.substring(0, j + 1);
@@ -113,6 +114,24 @@ window.DemoChatroom = function(options: DemoChatroomOptions) {
           yield sleepEffect(delay);
           this.ref.getInputRef().value = "";
           this.ref.getInputRef().blur();
+        }
+        if (
+          currentMessageContent.type === "button" &&
+          currentMessageContent.buttons.some(b => b.selected)
+        ) {
+          this.render(
+            messages.slice(0, i).concat({
+              username: currentMessage.username,
+              message: {
+                type: "button",
+                buttons: currentMessageContent.buttons.map(b => ({
+                  title: b.title,
+                  payload: b.payload
+                }))
+              }
+            })
+          );
+          yield sleepEffect(delay);
         }
         this.render(messages.slice(0, i + 1), showWaitingBubble);
       }

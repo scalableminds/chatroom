@@ -4,6 +4,7 @@
   "license": "AGPL-3.0",
   "dependencies": {
     "babel-polyfill": "^6.26.0",
+    "classnames": "^2.2.6",
     "lodash.isequal": "^4.5.0",
     "moment": "^2.21.0",
     "react": "^16.2.0",

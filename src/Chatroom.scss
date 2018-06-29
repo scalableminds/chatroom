@@ -171,7 +171,8 @@ $linkColor: #3498db;
         letter-spacing: normal;
         border-radius: 5px;
 
-        &:hover {
+        &:hover,
+        &.chat-button-selected {
           background-color: rgba($chromeColor, 0.6);
           color: $chromeColor2;
         }

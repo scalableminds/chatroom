@@ -3,6 +3,7 @@ import "babel-polyfill";
 import React, { Component, Fragment } from "react";
 import ReactDOM from "react-dom";
 import isEqual from "lodash.isequal";
+import classnames from "classnames";
 
 // $FlowFixMe
 import "./Chatroom.scss";
@@ -20,7 +21,10 @@ export type ChatMessage = {
         text: string
       }
     | { type: "image", image: string }
-    | { type: "button", buttons: Array<{ payload: string, title: string }> },
+    | {
+        type: "button",
+        buttons: Array<{ payload: string, title: string, selected?: boolean }>
+      },
   username: string,
   time: number,
   uuid: string
@@ -146,12 +150,10 @@ export default class Chatroom extends Component<ChatroomProps, {}> {
 
   render() {
     const { messages, isOpen, showWaitingBubble } = this.props;
-    const chatroomClassName = `chatroom ${isOpen ? "open" : "closed"}`;
-
     const messageGroups = this.groupMessages(messages);
 
     return (
-      <div className={chatroomClassName}>
+      <div className={classnames("chatroom", isOpen ? "open" : "closed")}>
         <h3 onClick={this.props.onToggleChat}>{this.props.title}</h3>
         <div
           className="chats"
