@@ -46,6 +46,7 @@
 * Install the Python dependencies from `rasa_utils/requirements.txt`
 * Register the `BotServerInputChannel` with your Rasa Core `Agent` (see below)
 * Run your bot. By default the server will be available at `0.0.0.0:5002`
+* When using the configuration above make sure the host has http://localhost:5002 if testing locally otherwise you will get errors when trying to test the chat.
 
 ```python
 from bot_server_channel import BotServerInputChannel
