@@ -33,7 +33,7 @@
     var chatroom = window.Chatroom({
       host: "https://mike.bots.scm.io",
       title: "Chat with Mike",
-      container: document.querySelector(".container"),
+      container: document.querySelector(".chat-container"),
       welcomeMessage: "Hi, I am Mike. How may I help you?"
     });
   </script>
