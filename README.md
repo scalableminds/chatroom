@@ -56,13 +56,15 @@
 * Copy `rasa_utils` to your project
 * Install the Python dependencies from `rasa_utils/requirements.txt`
 * Run your bot with `python -m rasa_utils.bot -d models/current/dialogue -u models/current/nlu_model`
+* The bot server will be available at `0.0.0.0:5002`
+
 
 ### Usage with a custom Rasa Core project
 
 * Copy the `rasa_utils/bot_server_channel.py` to your project
 * Install the Python dependencies from `rasa_utils/requirements.txt`
 * Register the `BotServerInputChannel` with your Rasa Core `Agent` (see below)
-* Run your bot. By default the server will be available at `0.0.0.0:5002`
+* Run your bot. By default the bot server will be available at `0.0.0.0:5002`
 
 ```python
 from bot_server_channel import BotServerInputChannel
