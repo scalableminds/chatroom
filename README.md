@@ -55,7 +55,7 @@
 
 * Copy `rasa_utils` to your project
 * Install the Python dependencies from `rasa_utils/requirements.txt`
-* Run your bot with `python -m rasa_utils.bot -d models/current/dialogue -u models/current/nlu_model`
+* Run your bot with `python -m rasa_utils.bot -d models/current/dialogue -u models/current/nlu`
 * The bot server will be available at `0.0.0.0:5002`
 
 
