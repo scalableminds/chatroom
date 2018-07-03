@@ -1,2 +1,3 @@
 klein
 twisted
+rasa_core

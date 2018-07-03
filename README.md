@@ -17,7 +17,7 @@
 * Queues consecutive bot messages for better readability
 * Demo mode included (ideal for scripted screencasts)
 * Hosted on S3 for easy use
-* Includes a `BotServerChannel` for use with Rasa Core (under `rasa_utils`)
+* Includes a `BotServerChannel` for use with [Rasa Core](https://github.com/rasahq/rasa_core) (under `rasa_utils`)
 
 ## Usage
 
@@ -36,17 +36,35 @@
       container: document.querySelector(".chat-container"),
       welcomeMessage: "Hi, I am Mike. How may I help you?"
     });
+    chatroom.openChat();
   </script>
 </body>
 ```
 
-### Use BotServerChannel in a Rasa Core project
+### Basic usage
+
+* Clone repository
+* Install frontend dependencies `yarn install`
+* Build frontend files `yarn build`
+* Create an HTML page for your Chatroom (see usage example above or modify [index.html](./index.html))
+* Make sure to adjust the `host` option. Use `http://localhost:5002` when testing locally
+* Run `yarn serve` to launch a web server with your Chatroom on `http://localhost:8080`
+* Integrate with a Rasa Core project (see standard or custom project below)
+
+### Usage with a standard Rasa Core project
+
+* Copy `rasa_utils` to your project
+* Install the Python dependencies from `rasa_utils/requirements.txt`
+* Run your bot with `python -m rasa_utils.bot -d models/current/dialogue -u models/current/nlu`
+* The bot server will be available at `0.0.0.0:5002`
+
+
+### Usage with a custom Rasa Core project
 
 * Copy the `rasa_utils/bot_server_channel.py` to your project
 * Install the Python dependencies from `rasa_utils/requirements.txt`
 * Register the `BotServerInputChannel` with your Rasa Core `Agent` (see below)
-* Run your bot. By default the server will be available at `0.0.0.0:5002`
-* When using the configuration above make sure the host has http://localhost:5002 if testing locally otherwise you will get errors when trying to test the chat.
+* Run your bot. By default the bot server will be available at `0.0.0.0:5002`
 
 ```python
 from bot_server_channel import BotServerInputChannel
@@ -65,13 +83,13 @@ main_server()
 
 ## Development
 
-### Install Dependencies
+### Install dependencies
 
 ```
 yarn install
 ```
 
-### Build the Simple Chatroom
+### Continuously build the Chatroom component
 
 ```
 yarn watch
