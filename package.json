@@ -10,7 +10,8 @@
     "react": "^16.2.0",
     "react-dom": "^16.2.0",
     "react-markdown": "^3.3.0",
-    "remark-breaks": "^1.0.0"
+    "remark-breaks": "^1.0.0",
+    "unfetch": "^3.0.0"
   },
   "devDependencies": {
     "babel-plugin-syntax-class-properties": "^6.13.0",
