@@ -1,7 +1,7 @@
 // @flow
 import type { ChatMessage } from "./Chatroom";
 
-import "unfetch";
+import "unfetch/polyfill";
 import "babel-polyfill";
 import React from "react";
 import ReactDOM from "react-dom";
