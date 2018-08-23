@@ -16,7 +16,9 @@ type ChatroomOptions = {
   host: string,
   title?: string,
   welcomeMessage?: string,
-  container: HTMLElement
+  container: HTMLElement,
+  waitingTimeout?: number,
+  pollingInterval?: number
 };
 
 window.Chatroom = function(options: ChatroomOptions) {
@@ -33,6 +35,8 @@ window.Chatroom = function(options: ChatroomOptions) {
       host={options.host}
       title={options.title || "Chat"}
       welcomeMessage={options.welcomeMessage}
+      waitingTimeout={options.waitingTimeout}
+      pollingInterval={options.pollingInterval}
     />,
     options.container
   );
