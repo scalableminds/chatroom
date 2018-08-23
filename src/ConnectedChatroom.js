@@ -13,7 +13,8 @@ type ConnectedChatroomProps = {
   title: string,
   waitingTimeout: number,
   pollingInterval: number,
-  messageBlacklist: Array<string>
+  messageBlacklist: Array<string>,
+  fetchOptions?: RequestOptions
 };
 type ConnectedChatroomState = {
   messages: Array<ChatMessage>,
@@ -112,7 +113,8 @@ export default class ConnectedChatroom extends Component<
     await fetch(
       `${this.props.host}/conversations/${
         this.props.userId
-      }/say?${getParametersString}`
+      }/say?${getParametersString}`,
+      this.props.fetchOptions
     );
 
     if (window.ga != null) {
@@ -125,7 +127,8 @@ export default class ConnectedChatroom extends Component<
     const res = await fetch(
       `${this.props.host}/conversations/${
         this.props.userId
-      }/log?nocache=${Date.now()}`
+      }/log?nocache=${Date.now()}`,
+      this.props.fetchOptions
     );
     const messages = await res.json();
 

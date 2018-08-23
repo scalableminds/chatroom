@@ -18,7 +18,8 @@ type ChatroomOptions = {
   welcomeMessage?: string,
   container: HTMLElement,
   waitingTimeout?: number,
-  pollingInterval?: number
+  pollingInterval?: number,
+  fetchOptions?: RequestOptions
 };
 
 window.Chatroom = function(options: ChatroomOptions) {
@@ -37,6 +38,7 @@ window.Chatroom = function(options: ChatroomOptions) {
       welcomeMessage={options.welcomeMessage}
       waitingTimeout={options.waitingTimeout}
       pollingInterval={options.pollingInterval}
+      fetchOptions={options.fetchOptions}
     />,
     options.container
   );
