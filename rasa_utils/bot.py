@@ -56,6 +56,6 @@ if __name__ == "__main__":
     utils.configure_file_logging(cmdline_args.loglevel,
                                  cmdline_args.log_file)
 
-    agent = Agent.load(cmdline_args.core, cmdline_args.nlu)
+    agent = Agent.load(cmdline_args.core, interpreter=cmdline_args.nlu)
     channel = BotServerInputChannel(agent, port=cmdline_args.port)
     agent.handle_channel(channel, message_preprocessor=preprocessor)
