@@ -1,6 +1,6 @@
 {
   "name": "@scalableminds/chatroom",
-  "version": "0.7.6",
+  "version": "0.7.7",
   "license": "AGPL-3.0",
   "dependencies": {
     "babel-polyfill": "^6.26.0",
