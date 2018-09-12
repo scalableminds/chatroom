@@ -234,7 +234,7 @@ export default class ConnectedChatroom extends Component<
           }
         : null;
 
-    const renderableMessages =
+    let renderableMessages =
       welcomeMessage != null
         ? [
             welcomeMessage,
@@ -243,7 +243,13 @@ export default class ConnectedChatroom extends Component<
           ]
         : [...messages.slice(0, Math.max(0, messageCounter)), ...localMessages];
 
-    renderableMessages.sort((a, b) => a.time - b.time);
+    renderableMessages = renderableMessages
+      .filter(
+        message =>
+          message.message.type !== "text" ||
+          !this.props.messageBlacklist.includes(message.message.text)
+      )
+      .sort((a, b) => a.time - b.time);
 
     return (
       <Chatroom
