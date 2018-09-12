@@ -16,6 +16,7 @@ type ChatroomOptions = {
   host: string,
   title?: string,
   welcomeMessage?: string,
+  startMessage?: string,
   container: HTMLElement,
   waitingTimeout?: number,
   pollingInterval?: number,
@@ -25,7 +26,9 @@ type ChatroomOptions = {
 window.Chatroom = function(options: ChatroomOptions) {
   let sessionUserId = window.sessionStorage.getItem(USERID_STORAGE_KEY);
 
-  if (sessionUserId == null) {
+  const isNewSession = sessionUserId == null;
+
+  if (isNewSession) {
     sessionUserId = uuidv4();
     window.sessionStorage.setItem(USERID_STORAGE_KEY, sessionUserId);
   }
@@ -46,6 +49,10 @@ window.Chatroom = function(options: ChatroomOptions) {
   this.openChat = () => {
     this.ref.setState({ isOpen: true });
   };
+
+  if (isNewSession && options.startMessage != null) {
+    this.ref.sendMessage(options.startMessage);
+  }
 };
 
 type DemoChatroomOptions = {

@@ -39,7 +39,7 @@ export default class ConnectedChatroom extends Component<
   static defaultProps = {
     waitingTimeout: 5000,
     pollingInterval: 1000,
-    messageBlacklist: ["_restart"]
+    messageBlacklist: ["_restart", "_start"]
   };
 
   waitingForBotResponseTimer: ?TimeoutID = null;
