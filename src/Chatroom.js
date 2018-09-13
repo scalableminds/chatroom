@@ -64,8 +64,8 @@ type ChatroomProps = {
 
 export default class Chatroom extends Component<ChatroomProps, {}> {
   lastRendered: number = 0;
-  chatsRef: ?HTMLElement = null;
-  inputRef: ?HTMLInputElement = null;
+  chatsRef = React.createRef();
+  inputRef = React.createRef();
 
   componentDidMount() {
     this.scrollToBot();
@@ -90,14 +90,14 @@ export default class Chatroom extends Component<ChatroomProps, {}> {
 
   getInputRef(): HTMLInputElement {
     const { inputRef } = this;
-    if (inputRef == null) throw new TypeError("inputRef is null.");
-    return ((ReactDOM.findDOMNode(inputRef): any): HTMLInputElement);
+    if (inputRef.current == null) throw new TypeError("inputRef is null.");
+    return ((inputRef.current: any): HTMLInputElement);
   }
 
   getChatsRef(): HTMLElement {
     const { chatsRef } = this;
-    if (chatsRef == null) throw new TypeError("chatsRef is null.");
-    return ((ReactDOM.findDOMNode(chatsRef): any): HTMLElement);
+    if (chatsRef.current == null) throw new TypeError("chatsRef is null.");
+    return ((chatsRef.current: any): HTMLElement);
   }
 
   scrollToBot() {
@@ -113,6 +113,13 @@ export default class Chatroom extends Component<ChatroomProps, {}> {
     const message = this.getInputRef().value.trim();
     this.props.onSendMessage(message);
     this.getInputRef().value = "";
+  };
+
+  handleButtonClick = (message: string, payload: string) => {
+    if (this.props.onButtonClick != null) {
+      this.props.onButtonClick(message, payload);
+    }
+    this.focusInput();
   };
 
   groupMessages(messages: Array<ChatMessage>) {
@@ -155,28 +162,18 @@ export default class Chatroom extends Component<ChatroomProps, {}> {
     return (
       <div className={classnames("chatroom", isOpen ? "open" : "closed")}>
         <h3 onClick={this.props.onToggleChat}>{this.props.title}</h3>
-        <div
-          className="chats"
-          ref={el => {
-            this.chatsRef = el;
-          }}
-        >
+        <div className="chats" ref={this.chatsRef}>
           {messageGroups.map((group, i) => (
             <MessageGroup
               messages={group}
               key={i}
-              onButtonClick={this.props.onButtonClick}
+              onButtonClick={this.handleButtonClick}
             />
           ))}
           {showWaitingBubble ? <WaitingBubble /> : null}
         </div>
         <form className="input" onSubmit={this.handleSubmitMessage}>
-          <input
-            type="text"
-            ref={el => {
-              this.inputRef = el;
-            }}
-          />
+          <input type="text" ref={this.inputRef} />
           <input type="submit" value="Submit" />
         </form>
       </div>

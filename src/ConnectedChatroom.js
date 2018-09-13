@@ -45,7 +45,7 @@ export default class ConnectedChatroom extends Component<
   waitingForBotResponseTimer: ?TimeoutID = null;
   messageCounterInterval: ?IntervalID = null;
   _isMounted: boolean = false;
-  chatroomRef: ?ElementRef<typeof Chatroom> = null;
+  chatroomRef = React.createRef();
 
   componentDidMount() {
     this._isMounted = true;
@@ -260,9 +260,7 @@ export default class ConnectedChatroom extends Component<
         onToggleChat={this.handleToggleChat}
         onButtonClick={this.handleButtonClick}
         onSendMessage={this.sendMessage}
-        ref={el => {
-          this.chatroomRef = el;
-        }}
+        ref={this.chatroomRef}
       />
     );
   }

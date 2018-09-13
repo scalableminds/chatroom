@@ -32,8 +32,7 @@
   {
     "username": "bot",
     "message": {
-      "text":
-        "Simply tell me your request :-) I will forward it to my human colleagues who will contact you.\n",
+      "text": "Simply tell me your request :-) I will forward it to my human colleagues who will contact you.\n",
       "type": "text"
     },
     "time": "2018-03-23T16:36:54.528572"
@@ -56,8 +55,7 @@
   {
     "username": "bot",
     "message": {
-      "text":
-        "I'm only 0s and 1s and unfortunately can't help you with that. You can contact my creators at [hello@scalableminds.com](mailto:hello@scalableminds.com).\n",
+      "text": "I'm only 0s and 1s and unfortunately can't help you with that. You can contact my creators at [hello@scalableminds.com](mailto:hello@scalableminds.com).\n",
       "type": "text"
     },
     "time": "2018-03-23T16:36:54.669122"
@@ -65,8 +63,7 @@
   {
     "username": "bot",
     "message": {
-      "text":
-        "You got me, that's something I know nothing about. But maybe my creators do, ask them at [hello@scalableminds.com](mailto:hello@scalableminds.com).\n",
+      "text": "You got me, that's something I know nothing about. But maybe my creators do, ask them at [hello@scalableminds.com](mailto:hello@scalableminds.com).\n",
       "type": "text"
     },
     "time": "2018-03-23T16:36:54.669897"
@@ -74,8 +71,7 @@
   {
     "username": "bot",
     "message": {
-      "text":
-        "Mhm, my creators didn't tell me about that. You can ask them about it at [hello@scalableminds.com](mailto:hello@scalableminds.com).\n",
+      "text": "Mhm, my creators didn't tell me about that. You can ask them about it at [hello@scalableminds.com](mailto:hello@scalableminds.com).\n",
       "type": "text"
     },
     "time": "2018-03-23T16:36:54.670752"
@@ -108,8 +104,7 @@
   {
     "username": "bot",
     "message": {
-      "text":
-        "My team from scalable minds can help you with many services. We offer\n* [Systems Design](https://scalableminds.com/services/#systems-design),\n* [Software Engineering](https://scalableminds.com/services/#software-engineering), and\n* [Project Management](https://scalableminds.com/services/#pm).\nWhat exactly do you need?\n",
+      "text": "My team from scalable minds can help you with many services. We offer\n* [Systems Design](https://scalableminds.com/services/#systems-design),\n* [Software Engineering](https://scalableminds.com/services/#software-engineering), and\n* [Project Management](https://scalableminds.com/services/#pm).\nWhat exactly do you need?\n",
       "type": "text"
     },
     "time": "2018-03-23T16:36:54.677484"
@@ -122,8 +117,7 @@
   {
     "username": "bot",
     "message": {
-      "text":
-        "Thanks, I just sent a mail to my human colleagues. They will contact you soon regarding your request.\n",
+      "text": "Thanks, I just sent a mail to my human colleagues. They will contact you soon regarding your request.\n",
       "type": "text"
     },
     "time": "2018-03-23T16:36:54.682292"
@@ -136,8 +130,7 @@
   {
     "username": "bot",
     "message": {
-      "text":
-        "I am a [chatbot](https://en.wikipedia.org/wiki/Chatbot),\nbuild by scalable minds with [Rasa](http://rasa.com/) technology.",
+      "text": "I am a [chatbot](https://en.wikipedia.org/wiki/Chatbot),\nbuild by scalable minds with [Rasa](http://rasa.com/) technology.",
       "type": "text"
     },
     "time": "2018-03-23T16:36:54.684828"
@@ -145,8 +138,7 @@
   {
     "username": "bot",
     "message": {
-      "text":
-        "I process your input and decide what to do using state of the art machine learning algorithms.",
+      "text": "I process your input and decide what to do using state of the art machine learning algorithms.",
       "type": "text"
     },
     "time": "2018-03-23T16:36:54.685874"
@@ -154,8 +146,7 @@
   {
     "username": "bot",
     "message": {
-      "text":
-        "Would you like to get more information and support about chatbots?\n",
+      "text": "Would you like to get more information and support about chatbots?\n",
       "type": "text"
     },
     "time": "2018-03-23T16:36:54.686917"
@@ -168,8 +159,7 @@
   {
     "username": "bot",
     "message": {
-      "text":
-        "What a pity. You can write us your request to [hello@scalableminds.com](mailto:hello@scalableminds.com).\n",
+      "text": "What a pity. You can write us your request to [hello@scalableminds.com](mailto:hello@scalableminds.com).\n",
       "type": "text"
     },
     "time": "2018-03-23T16:36:54.689465"
@@ -182,8 +172,7 @@
   {
     "username": "bot",
     "message": {
-      "text":
-        "Hello, I'm scalableMike.\nI'm here to inform you about\n* scalable minds,\n* chatbots like me, and\n* the weather in Potsdam,\n  just in case you are curious to talk to a bot.",
+      "text": "Hello, I'm scalableMike.\nI'm here to inform you about\n* scalable minds,\n* chatbots like me, and\n* the weather in Potsdam,\n  just in case you are curious to talk to a bot.",
       "type": "text"
     },
     "time": "2018-03-23T16:36:54.692104"
@@ -201,8 +190,7 @@
   {
     "username": "bot",
     "message": {
-      "text":
-        "The address of our office is [August-Bebel-Stra\u00dfe 27, 14482 Potsdam, Germany](https://www.google.com/maps/place/scalable+minds+UG+%26+Co.+KG/@52.3882084,13.119842,652m/data=!3m2!1e3!4b1!4m5!3m4!1s0x47a85f4655be769f:0x95df49e283f9ebe7!8m2!3d52.3882051!4d13.1220307).\n",
+      "text": "The address of our office is [August-Bebel-Stra\u00dfe 27, 14482 Potsdam, Germany](https://www.google.com/maps/place/scalable+minds+UG+%26+Co.+KG/@52.3882084,13.119842,652m/data=!3m2!1e3!4b1!4m5!3m4!1s0x47a85f4655be769f:0x95df49e283f9ebe7!8m2!3d52.3882051!4d13.1220307).\n",
       "type": "text"
     },
     "time": "2018-03-23T16:36:54.696097"
@@ -215,8 +203,7 @@
   {
     "username": "bot",
     "message": {
-      "text":
-        "We would like to get back to you regarding your request. What is your email adress, so we can contact you?\n",
+      "text": "We would like to get back to you regarding your request. What is your email adress, so we can contact you?\n",
       "type": "text"
     },
     "time": "2018-03-23T16:36:54.699414"
@@ -295,8 +282,7 @@
   {
     "username": "bot",
     "message": {
-      "text":
-        "Our email address is [hello@scalableminds.com](mailto:hello@scalableminds.com).",
+      "text": "Our email address is [hello@scalableminds.com](mailto:hello@scalableminds.com).",
       "type": "text"
     },
     "time": "2018-03-23T16:36:54.719505"
@@ -309,8 +295,7 @@
   {
     "username": "bot",
     "message": {
-      "text":
-        "scalable minds is a [team of software engineers](https://scalableminds.com/team/), experienced in developing, deploying and maintaining highly-scalable software systems and AI technologies.\n",
+      "text": "scalable minds is a [team of software engineers](https://scalableminds.com/team/), experienced in developing, deploying and maintaining highly-scalable software systems and AI technologies.\n",
       "type": "text"
     },
     "time": "2018-03-23T16:36:54.722726"
@@ -323,8 +308,7 @@
   {
     "username": "bot",
     "message": {
-      "text":
-        "This does not seem to be a valid email adress. Could you please try again?\n",
+      "text": "This does not seem to be a valid email adress. Could you please try again?\n",
       "type": "text"
     },
     "time": "2018-03-23T16:36:54.726018"

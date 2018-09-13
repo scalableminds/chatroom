@@ -7,8 +7,8 @@
     "classnames": "^2.2.6",
     "lodash.isequal": "^4.5.0",
     "moment": "^2.21.0",
-    "react": "^16.2.0",
-    "react-dom": "^16.2.0",
+    "react": "^16.5.0",
+    "react-dom": "^16.5.0",
     "react-markdown": "^3.3.0",
     "remark-breaks": "^1.0.0",
     "unfetch": "^3.0.0"
@@ -19,11 +19,11 @@
     "babel-plugin-transform-flow-strip-types": "^6.22.0",
     "babel-preset-env": "^1.6.1",
     "babel-preset-react": "^6.24.1",
-    "flow-bin": "^0.69.0",
+    "flow-bin": "^0.80.0",
     "http-server": "^0.11.1",
     "node-sass": "^4.8.3",
     "parcel-bundler": "^1.9.7",
-    "prettier": "^1.11.1"
+    "prettier": "^1.14.2"
   },
   "scripts": {
     "build": "parcel build src/index.js --out-file Chatroom.js",
