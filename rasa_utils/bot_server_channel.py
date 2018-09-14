@@ -105,6 +105,18 @@ class BotServerInputChannel(InputChannel):
         request.setHeader("Content-Type", "application/json")
         return json.dumps(self.message_store[cid])
 
+    @app.route("/conversations/<cid>/tracker", methods=["GET"])
+    @check_cors
+    def tracker(self, request, cid):
+        tracker = self.agent.tracker_store.get_or_create_tracker(cid)
+        tracker_state = tracker.current_state(
+            should_include_events=True,
+            only_events_after_latest_restart=True
+        )
+
+        request.setHeader("Content-Type", "application/json")
+        return json.dumps(tracker_state)
+
     @app.route("/conversations/<cid>/say", methods=["GET"])
     @check_cors
     def say(self, request, cid):
