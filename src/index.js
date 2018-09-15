@@ -186,7 +186,6 @@ window.DemoChatroom = function(options: DemoChatroomOptions) {
   this.render([]);
 };
 
-
 window.DebugChatroom = function(options: ChatroomOptions) {
   let sessionUserId = window.sessionStorage.getItem(USERID_STORAGE_KEY);
 
@@ -211,6 +210,6 @@ window.DebugChatroom = function(options: ChatroomOptions) {
   );
 
   if (isNewSession && options.startMessage != null) {
-    this.ref.sendMessage(options.startMessage);
+    this.ref.getChatroom().sendMessage(options.startMessage);
   }
 };

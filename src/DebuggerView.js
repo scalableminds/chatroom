@@ -9,7 +9,29 @@ function without(obj, prop) {
   return copy;
 }
 
-class DebuggerView extends Component {
+type TrackerState = {
+  slots: Object,
+  latest_event_time: number,
+  paused: boolean,
+  sender_id: string,
+  latest_message: Object,
+  events: Array<Object>
+};
+
+type DebuggerViewProps = {
+  userId: string,
+  host: string,
+  welcomeMessage: ?string,
+  title: string,
+  waitingTimeout?: number,
+  pollingInterval?: number,
+  messageBlacklist?: Array<string>,
+  fetchOptions?: RequestOptions
+};
+type DebuggerViewState = {
+  tracker: ?TrackerState
+};
+class DebuggerView extends Component<DebuggerViewProps, DebuggerViewState> {
   state = {
     tracker: null
   };
@@ -18,7 +40,7 @@ class DebuggerView extends Component {
 
   componentDidMount() {
     this.intervalHandle = window.setInterval(this.updateTrackerView, 1000);
-    this.chatroomRef.current.setState({ isOpen: true });
+    this.getChatroom().setState({ isOpen: true });
   }
 
   componentWillUnmount() {
@@ -26,19 +48,34 @@ class DebuggerView extends Component {
     this.intervalHandle = 0;
   }
 
-  updateTrackerView = async () => {
+  getChatroom() {
+    if (this.chatroomRef.current == null)
+      throw new TypeError("chatroomRef is null.");
+    return this.chatroomRef.current;
+  }
+
+  fetchTracker(): Promise<TrackerState> {
     const { host, userId } = this.props;
-    const tracker = await fetch(`${host}/conversations/${userId}/tracker`).then(
-      res => res.json()
+    return fetch(`${host}/conversations/${userId}/tracker`).then(res =>
+      res.json()
     );
+  }
+
+  updateTrackerView = async () => {
+    const tracker = await this.fetchTracker();
     this.setState(() => ({ tracker }));
   };
 
   render() {
     const { tracker } = this.state;
+    const preStyle = {
+      fontFamily: "Monaco, Consolas, Courier, monospace",
+      fontSize: "10pt"
+    };
+
     return (
-      <div style={{ display: "flex", margin: "50px 100px" }}>
-        <div style={{ flex: 2 }}>
+      <div style={{ display: "flex", margin: "5vh 5vw", height: "90vh" }}>
+        <div style={{ flex: 2, overflowY: "auto" }}>
           <div>
             <p>
               Bot address: <strong>{this.props.host}</strong>
@@ -50,9 +87,11 @@ class DebuggerView extends Component {
           {tracker != null ? (
             <div>
               <h3>Slots</h3>
-              <pre>{JSON.stringify(tracker.slots, null, 2)}</pre>
+              <pre style={preStyle}>
+                {JSON.stringify(tracker.slots, null, 2)}
+              </pre>
               <h3>Latest Message</h3>
-              <pre>
+              <pre style={preStyle}>
                 {JSON.stringify(
                   without(tracker.latest_message, "intent_ranking"),
                   null,
@@ -60,7 +99,9 @@ class DebuggerView extends Component {
                 )}
               </pre>
               <h3>Events</h3>
-              <pre>{JSON.stringify(tracker.events, null, 2)}</pre>
+              <pre style={preStyle}>
+                {JSON.stringify(tracker.events, null, 2)}
+              </pre>
             </div>
           ) : null}
         </div>
