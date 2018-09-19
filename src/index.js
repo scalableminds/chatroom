@@ -9,6 +9,7 @@ import ReactDOM from "react-dom";
 import Chatroom from "./Chatroom";
 import { noop, sleep, uuidv4 } from "./utils";
 import ConnectedChatroom from "./ConnectedChatroom";
+import DebuggerView from "./DebuggerView";
 
 const USERID_STORAGE_KEY = "simple-chatroom-cid";
 
@@ -183,4 +184,32 @@ window.DemoChatroom = function(options: DemoChatroomOptions) {
   };
 
   this.render([]);
+};
+
+window.DebugChatroom = function(options: ChatroomOptions) {
+  let sessionUserId = window.sessionStorage.getItem(USERID_STORAGE_KEY);
+
+  const isNewSession = sessionUserId == null;
+
+  if (isNewSession) {
+    sessionUserId = uuidv4();
+    window.sessionStorage.setItem(USERID_STORAGE_KEY, sessionUserId);
+  }
+
+  this.ref = ReactDOM.render(
+    <DebuggerView
+      userId={sessionUserId}
+      host={options.host}
+      title={options.title || "Chat"}
+      welcomeMessage={options.welcomeMessage}
+      waitingTimeout={options.waitingTimeout}
+      pollingInterval={options.pollingInterval}
+      fetchOptions={options.fetchOptions}
+    />,
+    options.container
+  );
+
+  if (isNewSession && options.startMessage != null) {
+    this.ref.getChatroom().sendMessage(options.startMessage);
+  }
 };
