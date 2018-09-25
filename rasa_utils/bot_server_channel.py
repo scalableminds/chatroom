@@ -11,6 +11,8 @@ from datetime import datetime
 import json
 import logging
 from uuid import uuid4
+from flask import Blueprint, jsonify, request, Flask, Response
+from flask_cors import CORS
 
 from rasa_nlu.server import check_cors
 from rasa_core.channels.channel import UserMessage
@@ -85,10 +87,8 @@ class BotServerOutputChannel(OutputChannel):
 
 class BotServerInputChannel(InputChannel):
 
-    app = Klein()
-
     def __init__(
-        self, agent, port=5002, static_files=None, message_store=FileMessageStore()
+        self, agent, preprocessor=None, port=5005, static_files=None, message_store=FileMessageStore()
     ):
         logging.basicConfig(level="DEBUG")
         logging.captureWarnings(True)
@@ -98,95 +98,94 @@ class BotServerInputChannel(InputChannel):
         self.cors_origins = [u'*']
         self.agent = agent
         self.port = port
+        self.preprocessor = preprocessor
 
-    @app.route("/conversations/<cid>/log", methods=["GET"])
-    @check_cors
-    def show_log(self, request, cid):
-        request.setHeader("Content-Type", "application/json")
-        return json.dumps(self.message_store[cid])
+    @classmethod
+    def name(cls):
+        return "chatroom"
 
-    @app.route("/conversations/<cid>/tracker", methods=["GET"])
-    @check_cors
-    def tracker(self, request, cid):
-        tracker = self.agent.tracker_store.get_or_create_tracker(cid)
-        tracker_state = tracker.current_state(
-            should_include_events=True,
-            only_events_after_latest_restart=True
-        )
+    def blueprint(self, on_new_message):
+        custom_webhook = Blueprint('custom_webhook', __name__)
+        CORS(custom_webhook)
 
-        request.setHeader("Content-Type", "application/json")
-        return json.dumps(tracker_state)
+        @custom_webhook.route("/", methods=['GET'])
+        def static():
+            if self.static_files is None:
+                return NoResource()
+            else:
+                return File(self.static_files)
 
-    @app.route("/conversations/<cid>/say", methods=["GET"])
-    @check_cors
-    def say(self, request, cid):
-        message, = request.args.get(b"message", [])
-        _payload = request.args.get(b"payload", [])
-        _display_name = request.args.get(b"display_name", [])
-        _uuid = request.args.get(b"uuid", [])
-        logger.info(message)
+        @custom_webhook.route("/health", methods=["GET"])
+        def health():
+            return "healthy"
 
-        if len(_display_name) > 0:
-            display_name, = _display_name
+        @custom_webhook.route("/webhook", methods=['POST'])
+        def receive():
+            sender_id = self._extract_sender(request)
+            text = self._extract_message(request)
+            should_use_stream = utils.bool_arg("stream", default=False)
+
+            if should_use_stream:
+                return Response(
+                        self.stream_response(on_new_message, text, sender_id),
+                        content_type='text/event-stream')
+            else:
+                collector = CollectingOutputChannel()
+                on_new_message(UserMessage(text, collector, sender_id))
+                return jsonify(collector.messages)
+
+        @custom_webhook.route("/conversations/<cid>/log", methods=["GET"])
+        def show_log(cid):
+            return json.dumps(self.message_store[cid])
+
+        @custom_webhook.route("/conversations/<cid>/tracker", methods=["GET"])
+        def tracker(cid):
             tracker = self.agent.tracker_store.get_or_create_tracker(cid)
-            if (
-                "display_name" in tracker.current_slot_values()
-                and tracker.get_slot("display_name") != display_name
-            ):
-                tracker.update(SlotSet("display_name", display_name.decode("utf-8")))
-                self.agent.tracker_store.save(tracker)
+            tracker_state = tracker.current_state(
+                should_include_events=True,
+                only_events_after_latest_restart=True
+            )
 
-        if message == "_restart":
-            self.message_store.clear(cid)
-        else:
-            if len(_uuid) > 0:
-                self.message_store.log(
-                    cid,
-                    cid,
-                    {"type": "text", "text": message.decode("utf-8")},
-                    _uuid[0].decode("utf-8"),
+            return json.dumps(tracker_state)
+
+        @custom_webhook.route("/conversations/<cid>/say", methods=["GET"])
+        def say(cid):
+            message = request.args.get(b"message", [])
+            _payload = request.args.get(b"payload", [])
+            _display_name = request.args.get(b"display_name", [])
+            _uuid = request.args.get(b"uuid", [])
+            logger.info(message)
+
+            if len(_display_name) > 0:
+                display_name, = _display_name
+                tracker = self.agent.tracker_store.get_or_create_tracker(cid)
+                if (
+                    "display_name" in tracker.current_slot_values()
+                    and tracker.get_slot("display_name") != display_name
+                ):
+                    tracker.update(SlotSet("display_name", display_name.decode("utf-8")))
+                    self.agent.tracker_store.save(tracker)
+
+            if message == "_restart":
+                self.message_store.clear(cid)
+
+            if len(_payload) > 0:
+                self.on_new_message(
+                    UserMessage(
+                        _payload[0].decode("utf-8"),
+                        output_channel=BotServerOutputChannel(self.message_store),
+                        sender_id=cid,
+                    ),
+                    preprocessor=self.preprocessor
                 )
             else:
-                self.message_store.log(
-                    cid, cid, {"type": "text", "text": message.decode("utf-8")}
+                self.on_new_message(
+                    UserMessage(
+                        message.decode("utf-8"),
+                        output_channel=BotServerOutputChannel(self.message_store),
+                        sender_id=cid,
+                    ),
+                    preprocessor=self.preprocessor
                 )
 
-        if len(_payload) > 0:
-            self.on_message(
-                UserMessage(
-                    _payload[0].decode("utf-8"),
-                    output_channel=BotServerOutputChannel(self.message_store),
-                    sender_id=cid,
-                )
-            )
-        else:
-            self.on_message(
-                UserMessage(
-                    message.decode("utf-8"),
-                    output_channel=BotServerOutputChannel(self.message_store),
-                    sender_id=cid,
-                )
-            )
-
-    @app.route("/health", methods=["GET"])
-    def health(self, request):
-        return "healthy"
-
-    @app.route("/", branch=True, methods=["GET"])
-    @check_cors
-    def static(self, request):
-        if self.static_files is None:
-            return NoResource()
-        else:
-            return File(self.static_files)
-
-    def start(self, on_message):
-        self.on_message = on_message
-        logger.info("Started http server on port %d" % self.port)
-        self.app.run("0.0.0.0", self.port)
-
-    def start_async_listening(self, message_queue):
-        self.start(message_queue.enqueue)
-
-    def start_sync_listening(self, message_handler):
-        self.start(message_handler)
+        return custom_webhook

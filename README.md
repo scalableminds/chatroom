@@ -31,7 +31,7 @@
   <script src="https://npm-scalableminds.s3.eu-central-1.amazonaws.com/@scalableminds/chatroom@master/dist/Chatroom.js"/></script>
   <script type="text/javascript">
     var chatroom = window.Chatroom({
-      host: "http://localhost:5002",
+      host: "http://localhost:5005",
       title: "Chat with Mike",
       container: document.querySelector(".chat-container"),
       welcomeMessage: "Hi, I am Mike. How may I help you?"
@@ -47,7 +47,7 @@
 * Install frontend dependencies `yarn install`
 * Build frontend files `yarn build`
 * Create an HTML page for your Chatroom (see usage example above or modify [index.html](./index.html))
-* Make sure to adjust the `host` option. Use `http://localhost:5002` when testing locally
+* Make sure to adjust the `host` option. Use `http://localhost:5005` when testing locally
 * Run `yarn serve` to launch a web server with your Chatroom on `http://localhost:8080`
 * Integrate with a Rasa Core project (see standard or custom project below)
 
@@ -56,7 +56,7 @@
 * Copy `rasa_utils` to your project
 * Install the Python dependencies from `rasa_utils/requirements.txt`
 * Run your bot with `python -m rasa_utils.bot -d models/current/dialogue -u models/current/nlu`
-* The bot server will be available at `0.0.0.0:5002`
+* The bot server will be available at `0.0.0.0:5005`
 
 
 ### Usage with a custom Rasa Core project
@@ -64,7 +64,7 @@
 * Copy the `rasa_utils/bot_server_channel.py` to your project
 * Install the Python dependencies from `rasa_utils/requirements.txt`
 * Register the `BotServerInputChannel` with your Rasa Core `Agent` (see below)
-* Run your bot. By default the bot server will be available at `0.0.0.0:5002`
+* Run your bot. By default the bot server will be available at `0.0.0.0:5005`
 
 ```python
 from bot_server_channel import BotServerInputChannel
