@@ -88,7 +88,7 @@ class BotServerOutputChannel(OutputChannel):
 class BotServerInputChannel(InputChannel):
 
     def __init__(
-        self, agent, preprocessor=None, port=5005, static_files=None, message_store=FileMessageStore()
+        self, agent, preprocessor=None, port=5002, static_files=None, message_store=FileMessageStore()
     ):
         logging.basicConfig(level="DEBUG")
         logging.captureWarnings(True)
@@ -132,7 +132,7 @@ class BotServerInputChannel(InputChannel):
             else:
                 collector = CollectingOutputChannel()
                 on_new_message(UserMessage(text, collector, sender_id))
-                return jsonify(collector.messages)
+                return json.dumps(collector.messages)
 
         @custom_webhook.route("/conversations/<cid>/log", methods=["GET"])
         def show_log(cid):
@@ -150,10 +150,10 @@ class BotServerInputChannel(InputChannel):
 
         @custom_webhook.route("/conversations/<cid>/say", methods=["GET"])
         def say(cid):
-            message = request.args.get(b"message", [])
-            _payload = request.args.get(b"payload", [])
-            _display_name = request.args.get(b"display_name", [])
-            _uuid = request.args.get(b"uuid", [])
+            message = bytes(request.args.get("message"), "utf8")
+            _payload = bytes(request.args.get("payload", ""), "utf8")
+            _display_name = bytes(request.args.get("display_name", ""), "utf8")
+            _uuid = bytes(request.args.get("uuid", ""), "utf8")
             logger.info(message)
 
             if len(_display_name) > 0:
@@ -168,9 +168,16 @@ class BotServerInputChannel(InputChannel):
 
             if message == "_restart":
                 self.message_store.clear(cid)
-
+            else:
+                if len(_uuid) > 0:
+                    self.message_store.log(
+                        cid,
+                        cid,
+                        {"type": "text", "text": message.decode("utf-8")},
+                        _uuid.decode("utf-8"),
+                    )
             if len(_payload) > 0:
-                self.on_new_message(
+                on_new_message(
                     UserMessage(
                         _payload[0].decode("utf-8"),
                         output_channel=BotServerOutputChannel(self.message_store),
@@ -179,7 +186,7 @@ class BotServerInputChannel(InputChannel):
                     preprocessor=self.preprocessor
                 )
             else:
-                self.on_new_message(
+                on_new_message(
                     UserMessage(
                         message.decode("utf-8"),
                         output_channel=BotServerOutputChannel(self.message_store),
@@ -187,5 +194,6 @@ class BotServerInputChannel(InputChannel):
                     ),
                     preprocessor=self.preprocessor
                 )
+            return "OK"
 
         return custom_webhook
