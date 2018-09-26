@@ -11,7 +11,7 @@ from datetime import datetime
 import json
 import logging
 from uuid import uuid4
-from flask import Blueprint, jsonify, request, Flask, Response
+from flask import Blueprint, jsonify, request, Flask, Response, make_response
 from flask_cors import CORS
 
 from rasa_nlu.server import check_cors
@@ -105,21 +105,21 @@ class BotServerInputChannel(InputChannel):
         return "chatroom"
 
     def blueprint(self, on_new_message):
-        custom_webhook = Blueprint('custom_webhook', __name__)
-        CORS(custom_webhook)
+        bot_server_webhook = Blueprint('bot_server_webhook', __name__)
+        CORS(bot_server_webhook)
 
-        @custom_webhook.route("/", methods=['GET'])
+        @bot_server_webhook.route("/", methods=['GET'])
         def static():
             if self.static_files is None:
                 return NoResource()
             else:
                 return File(self.static_files)
 
-        @custom_webhook.route("/health", methods=["GET"])
+        @bot_server_webhook.route("/health", methods=["GET"])
         def health():
             return "healthy"
 
-        @custom_webhook.route("/webhook", methods=['POST'])
+        @bot_server_webhook.route("/webhook", methods=['POST'])
         def receive():
             sender_id = self._extract_sender(request)
             text = self._extract_message(request)
@@ -134,11 +134,11 @@ class BotServerInputChannel(InputChannel):
                 on_new_message(UserMessage(text, collector, sender_id))
                 return json.dumps(collector.messages)
 
-        @custom_webhook.route("/conversations/<cid>/log", methods=["GET"])
+        @bot_server_webhook.route("/conversations/<cid>/log", methods=["GET"])
         def show_log(cid):
             return json.dumps(self.message_store[cid])
 
-        @custom_webhook.route("/conversations/<cid>/tracker", methods=["GET"])
+        @bot_server_webhook.route("/conversations/<cid>/tracker", methods=["GET"])
         def tracker(cid):
             tracker = self.agent.tracker_store.get_or_create_tracker(cid)
             tracker_state = tracker.current_state(
@@ -148,12 +148,12 @@ class BotServerInputChannel(InputChannel):
 
             return json.dumps(tracker_state)
 
-        @custom_webhook.route("/conversations/<cid>/say", methods=["GET"])
+        @bot_server_webhook.route("/conversations/<cid>/say", methods=["GET"])
         def say(cid):
-            message = bytes(request.args.get("message"), "utf8")
-            _payload = bytes(request.args.get("payload", ""), "utf8")
-            _display_name = bytes(request.args.get("display_name", ""), "utf8")
-            _uuid = bytes(request.args.get("uuid", ""), "utf8")
+            message = bytes(request.args.get("message", default=""), "utf8")
+            _payload = bytes(request.args.get("payload", default=""), "utf8")
+            _display_name = bytes(request.args.get("display_name", default=""), "utf8")
+            _uuid = bytes(request.args.get("uuid", default=""), "utf8")
             logger.info(message)
 
             if len(_display_name) > 0:
@@ -179,7 +179,7 @@ class BotServerInputChannel(InputChannel):
             if len(_payload) > 0:
                 on_new_message(
                     UserMessage(
-                        _payload[0].decode("utf-8"),
+                        _payload.decode("utf-8"),
                         output_channel=BotServerOutputChannel(self.message_store),
                         sender_id=cid,
                     ),
@@ -194,6 +194,6 @@ class BotServerInputChannel(InputChannel):
                     ),
                     preprocessor=self.preprocessor
                 )
-            return "OK"
+            return make_response("OK", 200)
 
-        return custom_webhook
+        return bot_server_webhook
