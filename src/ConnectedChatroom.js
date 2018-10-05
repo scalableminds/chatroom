@@ -111,7 +111,7 @@ export default class ConnectedChatroom extends Component<
       }
     }, this.props.waitingTimeout);
     await fetch(
-      `${this.props.host}/conversations/${
+      `${this.props.host}/webhooks/chatroom/conversations/${
         this.props.userId
       }/say?${getParametersString}`,
       this.props.fetchOptions
@@ -125,7 +125,7 @@ export default class ConnectedChatroom extends Component<
 
   async fetchMessages() {
     const res = await fetch(
-      `${this.props.host}/conversations/${
+      `${this.props.host}/webhooks/chatroom/conversations/${
         this.props.userId
       }/log?nocache=${Date.now()}`,
       this.props.fetchOptions
