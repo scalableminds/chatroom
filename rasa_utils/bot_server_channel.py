@@ -3,9 +3,6 @@ from __future__ import division
 from __future__ import print_function
 from __future__ import unicode_literals
 
-from twisted.web.static import File
-from twisted.web.resource import NoResource
-from klein import Klein
 from collections import defaultdict
 from datetime import datetime
 import json
@@ -14,7 +11,6 @@ from uuid import uuid4
 from flask import Blueprint, jsonify, request, Flask, Response, make_response
 from flask_cors import CORS
 
-from rasa_nlu.server import check_cors
 from rasa_core.channels.channel import UserMessage
 from rasa_core.channels.channel import InputChannel, OutputChannel
 from rasa_core.events import SlotSet
@@ -88,12 +84,11 @@ class BotServerOutputChannel(OutputChannel):
 class BotServerInputChannel(InputChannel):
 
     def __init__(
-        self, agent, preprocessor=None, port=5002, static_files=None, message_store=FileMessageStore()
+        self, agent=None, preprocessor=None, port=5002, message_store=FileMessageStore()
     ):
         logging.basicConfig(level="DEBUG")
         logging.captureWarnings(True)
         self.message_store = message_store
-        self.static_files = static_files
         self.on_message = lambda x: None
         self.cors_origins = [u'*']
         self.agent = agent
@@ -107,13 +102,6 @@ class BotServerInputChannel(InputChannel):
     def blueprint(self, on_new_message):
         bot_server_webhook = Blueprint('bot_server_webhook', __name__)
         CORS(bot_server_webhook)
-
-        @bot_server_webhook.route("/", methods=['GET'])
-        def static():
-            if self.static_files is None:
-                return NoResource()
-            else:
-                return File(self.static_files)
 
         @bot_server_webhook.route("/health", methods=["GET"])
         def health():
@@ -140,13 +128,16 @@ class BotServerInputChannel(InputChannel):
 
         @bot_server_webhook.route("/conversations/<cid>/tracker", methods=["GET"])
         def tracker(cid):
-            tracker = self.agent.tracker_store.get_or_create_tracker(cid)
-            tracker_state = tracker.current_state(
-                should_include_events=True,
-                only_events_after_latest_restart=True
-            )
+            if self.agent:
+                tracker = self.agent.tracker_store.get_or_create_tracker(cid)
+                tracker_state = tracker.current_state(
+                    should_include_events=True,
+                    only_events_after_latest_restart=True
+                )
 
-            return json.dumps(tracker_state)
+                return json.dumps(tracker_state)
+            else:
+                return make_response("Could not access agent", 400)
 
         @bot_server_webhook.route("/conversations/<cid>/say", methods=["GET"])
         def say(cid):
@@ -156,7 +147,7 @@ class BotServerInputChannel(InputChannel):
             _uuid = bytes(request.args.get("uuid", default=""), "utf8")
             logger.info(message)
 
-            if len(_display_name) > 0:
+            if len(_display_name) > 0 and self.agent:
                 display_name, = _display_name
                 tracker = self.agent.tracker_store.get_or_create_tracker(cid)
                 if (

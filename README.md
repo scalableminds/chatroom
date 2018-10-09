@@ -59,8 +59,25 @@
 * The bot server will be available at `0.0.0.0:5005`
 
 
-### Usage with a custom Rasa Core project
+### Simple Usage with a custom Rasa Core project on CLI
+* Copy the `rasa_utils/bot_server_channel.py` to your project
+* Install the Python dependencies from `rasa_utils/requirements.txt`
+* Create or Modifiy `credentials.yml` file and add:
+```
+rasa_utils.bot_server_channel.BotServerInputChannel:
+  # pass
+```
+* Start the Rasa bot using the command line and pass the `--credentials` flag:
+```
+python -m rasa_core.run  \
+  --core models/current/dialogue  \
+  --nlu models/current/nlu  \
+  --endpoints endpoints.yml \
+  --credentials credentials.yml
+```
 
+
+### Advanced Usage with a custom Rasa Core project as Custom Channel from Python
 * Copy the `rasa_utils/bot_server_channel.py` to your project
 * Install the Python dependencies from `rasa_utils/requirements.txt`
 * Register the `BotServerInputChannel` with your Rasa Core `Agent` (see below)
@@ -75,8 +92,9 @@ def load_agent(): ...
 # Creating the server
 def main_server():
     agent = load_agent()
-    channel = BotServerInputChannel(agent)
-    agent.handle_channel(channel)
+
+    channel = BotServerInputChannel(agent, port=cmdline_args.port)
+    agent.handle_channels([channel], http_port=cmdline_args.port)
 
 main_server()
 ```
