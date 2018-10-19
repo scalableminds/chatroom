@@ -3,7 +3,8 @@ import React, { Component } from "react";
 import { FaMicrophone, FaCircle } from "react-icons/fa";
 
 type SpeechInputProps = {
-  onSpeechInput: (message: string) => Promise<void>
+  onSpeechInput: (message: string) => Promise<void>,
+  onSpeechEnd: () => void
 };
 
 type SpeechInputState = {
@@ -72,6 +73,7 @@ export default class SpeechInput extends Component<
   onRecognitionEnd = () => {
     this.setState({ isRecognizing: false });
     this.recognition.stop();
+    this.props.onSpeechEnd();
   };
 
   onRecognitionError = (event: { error: Error }) => {

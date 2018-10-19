@@ -5,8 +5,8 @@
   "dependencies": {
     "babel-polyfill": "^6.26.0",
     "classnames": "^2.2.6",
+    "date-fns": "2.0.0-alpha.23",
     "lodash.isequal": "^4.5.0",
-    "moment": "^2.21.0",
     "react": "^16.5.0",
     "react-dom": "^16.5.0",
     "react-icons": "^3.2.1",

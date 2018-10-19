@@ -25,6 +25,10 @@ export type ChatMessage = {
     | {
         type: "button",
         buttons: Array<{ payload: string, title: string, selected?: boolean }>
+      }
+    | {
+        type: "custom",
+        content: any
       },
   username: string,
   time: number,
@@ -117,8 +121,10 @@ export default class Chatroom extends Component<ChatroomProps, ChatroomState> {
     this.getInputRef().focus();
   }
 
-  handleSubmitMessage = async (e: SyntheticEvent<>) => {
-    e.preventDefault();
+  handleSubmitMessage = async (e?: SyntheticEvent<>) => {
+    if (e != null) {
+      e.preventDefault();
+    }
     const message = this.getInputRef().value.trim();
     this.props.onSendMessage(message);
     this.setState({ inputValue: "" });
@@ -207,6 +213,7 @@ export default class Chatroom extends Component<ChatroomProps, ChatroomState> {
           <input type="submit" value="Submit" />
           <SpeechInput
             onSpeechInput={message => this.handleInputChange(message, true)}
+            onSpeechEnd={this.handleSubmitMessage}
           />
         </form>
       </div>
