@@ -4,7 +4,7 @@ import { FaMicrophone, FaCircle } from "react-icons/fa";
 
 type SpeechInputProps = {
   onSpeechInput: (message: string) => Promise<void>,
-  onSpeechEnd: () => void
+  onSpeechEnd: () => Promise<void>
 };
 
 type SpeechInputState = {
