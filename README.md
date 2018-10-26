@@ -93,8 +93,8 @@ def load_agent(): ...
 def main_server():
     agent = load_agent()
 
-    channel = BotServerInputChannel(agent, port=cmdline_args.port)
-    agent.handle_channels([channel], http_port=cmdline_args.port)
+    channel = BotServerInputChannel(agent, port=5005)
+    agent.handle_channels([channel], http_port=5005)
 
 main_server()
 ```
