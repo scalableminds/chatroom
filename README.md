@@ -20,6 +20,7 @@
 * Includes a `BotServerChannel` for use with [Rasa Core](https://github.com/rasahq/rasa_core) (under `rasa_utils`)
 
 ## Usage
+Embed the `chatroom.js` in the HTML of your website and configure it to connect to your Rasa bot. (see below)
 
 ```html
 <head>
@@ -40,6 +41,13 @@
   </script>
 </body>
 ```
+Note, the version of the Chatroom's Javascript file is encoded in the URL. `chatroom@master` is always the latest version from the GitHub master branch. Use e.g. `chatroom@0.8.2` to load a specific release. [All Releases can be found here.](https://github.com/scalableminds/chatroom/releases) 
+
+
+| Chatroom Version | Compatible Rasa Core Version |
+|------------------|------------------------------|
+| 0.8.x            | 0.11.4+                      |
+| 0.7.x            | 0.10.4+                        |
 
 ### Basic usage
 
