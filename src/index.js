@@ -17,6 +17,7 @@ type ChatroomOptions = {
   host: string,
   title?: string,
   welcomeMessage?: string,
+  speechRecognition?: false | string,
   startMessage?: string,
   container: HTMLElement,
   waitingTimeout?: number,
@@ -39,6 +40,7 @@ window.Chatroom = function(options: ChatroomOptions) {
       userId={sessionUserId}
       host={options.host}
       title={options.title || "Chat"}
+      speechRecognition={options.speechRecognition || false}
       welcomeMessage={options.welcomeMessage}
       waitingTimeout={options.waitingTimeout}
       pollingInterval={options.pollingInterval}
@@ -72,6 +74,7 @@ window.DemoChatroom = function(options: DemoChatroomOptions) {
       <Chatroom
         messages={messages}
         showWaitingBubble={showWaitingBubble}
+        speechRecognition={false}
         isOpen={true}
         title={options.title || "Chat"}
         onButtonClick={noop}
@@ -201,6 +204,7 @@ window.DebugChatroom = function(options: ChatroomOptions) {
       userId={sessionUserId}
       host={options.host}
       title={options.title || "Chat"}
+      speechRecognition={options.speechRecognition || false}
       welcomeMessage={options.welcomeMessage}
       waitingTimeout={options.waitingTimeout}
       pollingInterval={options.pollingInterval}

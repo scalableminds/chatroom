@@ -4,7 +4,8 @@ import { FaMicrophone, FaCircle } from "react-icons/fa";
 
 type SpeechInputProps = {
   onSpeechInput: (message: string) => Promise<void>,
-  onSpeechEnd: () => Promise<void>
+  onSpeechEnd: () => Promise<void>,
+  language: string
 };
 
 type SpeechInputState = {
@@ -26,6 +27,9 @@ export default class SpeechInput extends Component<
   SpeechInputProps,
   SpeechInputState
 > {
+  static defaultProps = {
+    language: "en-US"
+  };
   state = {
     isRecognizing: false,
     finalTranscript: "",
@@ -37,6 +41,7 @@ export default class SpeechInput extends Component<
 
     // $FlowFixMe We're checking for the existence of the API before
     const recognition = new webkitSpeechRecognition();
+    recognition.lang = this.props.language;
     recognition.continuous = false;
     recognition.interimResults = true;
     recognition.onstart = this.onRecognitionStart;

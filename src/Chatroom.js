@@ -62,6 +62,7 @@ type ChatroomProps = {
   title: string,
   isOpen: boolean,
   showWaitingBubble: boolean,
+  speechRecognition: false | string,
   onButtonClick: (message: string, payload: string) => *,
   onSendMessage: (message: string) => *,
   onToggleChat: () => *
@@ -211,10 +212,13 @@ export default class Chatroom extends Component<ChatroomProps, ChatroomState> {
             ref={this.inputRef}
           />
           <input type="submit" value="Submit" />
-          <SpeechInput
-            onSpeechInput={message => this.handleInputChange(message, true)}
-            onSpeechEnd={this.handleSubmitMessage}
-          />
+          {this.props.speechRecognition !== false ? (
+            <SpeechInput
+              language={this.props.speechRecognition || undefined}
+              onSpeechInput={message => this.handleInputChange(message, true)}
+              onSpeechEnd={this.handleSubmitMessage}
+            />
+          ) : null}
         </form>
       </div>
     );
