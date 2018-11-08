@@ -15,6 +15,7 @@
 * Customizable with SASS variables
 * Generates a unique session id and keeps it in `sessionStorage`
 * Queues consecutive bot messages for better readability
+* Speech input (only in Chrome for now)
 * Demo mode included (ideal for scripted screencasts)
 * Hosted on S3 for easy use
 * Includes a `BotServerChannel` for use with [Rasa Core](https://github.com/rasahq/rasa_core) (under `rasa_utils`)
@@ -35,7 +36,8 @@ Embed the `chatroom.js` in the HTML of your website and configure it to connect 
       host: "http://localhost:5005",
       title: "Chat with Mike",
       container: document.querySelector(".chat-container"),
-      welcomeMessage: "Hi, I am Mike. How may I help you?"
+      welcomeMessage: "Hi, I am Mike. How may I help you?",
+      speechRecognition: "en-US"
     });
     chatroom.openChat();
   </script>
@@ -46,8 +48,9 @@ Note, the version of the Chatroom's Javascript file is encoded in the URL. `chat
 
 | Chatroom Version | Compatible Rasa Core Version |
 |------------------|------------------------------|
+| 0.9.x            | 0.11.4+                      |
 | 0.8.x            | 0.11.4+                      |
-| 0.7.8            | 0.10.4+                        |
+| 0.7.8            | 0.10.4+                      |
 
 ### Basic usage
 
