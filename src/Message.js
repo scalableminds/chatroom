@@ -2,7 +2,7 @@
 import React from "react";
 import Markdown from "react-markdown";
 import breaks from "remark-breaks";
-import moment from "moment";
+import { formatDistance } from "date-fns";
 import classnames from "classnames";
 import type { ChatMessage } from "./Chatroom";
 
@@ -14,12 +14,13 @@ export const MessageTime = ({ time, isBot }: MessageTimeProps) => {
   if (time === 0) return null;
 
   const messageTime = Math.min(Date.now(), time);
+  const messageTimeObj = new Date(messageTime);
   return (
     <li
       className={classnames("time", isBot ? "left" : "right")}
-      title={new Date(messageTime).toISOString()}
+      title={messageTimeObj.toISOString()}
     >
-      {moment(messageTime).fromNow()}
+      {formatDistance(messageTimeObj, Date.now())}
     </li>
   );
 };
@@ -63,7 +64,7 @@ const Message = ({ chat, onButtonClick }: MessageProps) => {
           <img src={message.image} alt="" />
         </li>
       );
-    default:
+    case "text":
       return (
         <li className={classnames("chat", isBot ? "left" : "right")}>
           <Markdown
@@ -93,6 +94,8 @@ const Message = ({ chat, onButtonClick }: MessageProps) => {
           />
         </li>
       );
+    default:
+      return null;
   }
 };
 

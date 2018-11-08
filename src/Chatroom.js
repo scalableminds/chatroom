@@ -10,6 +10,7 @@ import "./Chatroom.scss";
 
 import { uuidv4 } from "./utils";
 import Message, { MessageTime } from "./Message";
+import SpeechInput from "./SpeechInput";
 
 const REDRAW_INTERVAL = 10000;
 const GROUP_INTERVAL = 60000;
@@ -24,6 +25,10 @@ export type ChatMessage = {
     | {
         type: "button",
         buttons: Array<{ payload: string, title: string, selected?: boolean }>
+      }
+    | {
+        type: "custom",
+        content: any
       },
   username: string,
   time: number,
@@ -62,7 +67,14 @@ type ChatroomProps = {
   onToggleChat: () => *
 };
 
-export default class Chatroom extends Component<ChatroomProps, {}> {
+type ChatroomState = {
+  inputValue: string
+};
+
+export default class Chatroom extends Component<ChatroomProps, ChatroomState> {
+  state = {
+    inputValue: ""
+  };
   lastRendered: number = 0;
   chatsRef = React.createRef();
   inputRef = React.createRef();
@@ -81,9 +93,10 @@ export default class Chatroom extends Component<ChatroomProps, {}> {
     this.lastRendered = Date.now();
   }
 
-  shouldComponentUpdate(nextProps: ChatroomProps) {
+  shouldComponentUpdate(nextProps: ChatroomProps, nextState: ChatroomState) {
     return (
       !isEqual(nextProps, this.props) ||
+      !isEqual(nextState, this.state) ||
       Date.now() > this.lastRendered + REDRAW_INTERVAL
     );
   }
@@ -108,11 +121,13 @@ export default class Chatroom extends Component<ChatroomProps, {}> {
     this.getInputRef().focus();
   }
 
-  handleSubmitMessage = async (e: SyntheticEvent<>) => {
-    e.preventDefault();
+  handleSubmitMessage = async (e?: SyntheticEvent<>) => {
+    if (e != null) {
+      e.preventDefault();
+    }
     const message = this.getInputRef().value.trim();
     this.props.onSendMessage(message);
-    this.getInputRef().value = "";
+    this.setState({ inputValue: "" });
   };
 
   handleButtonClick = (message: string, payload: string) => {
@@ -155,6 +170,20 @@ export default class Chatroom extends Component<ChatroomProps, {}> {
     return groups;
   }
 
+  handleInputChange = async (
+    inputValue: string,
+    scrollToEnd: boolean = false
+  ) => {
+    await this.setState({
+      inputValue
+    });
+    if (scrollToEnd) {
+      const inputRef = this.getInputRef();
+      inputRef.focus();
+      inputRef.scrollLeft = inputRef.scrollWidth;
+    }
+  };
+
   render() {
     const { messages, isOpen, showWaitingBubble } = this.props;
     const messageGroups = this.groupMessages(messages);
@@ -173,8 +202,19 @@ export default class Chatroom extends Component<ChatroomProps, {}> {
           {showWaitingBubble ? <WaitingBubble /> : null}
         </div>
         <form className="input" onSubmit={this.handleSubmitMessage}>
-          <input type="text" ref={this.inputRef} />
+          <input
+            type="text"
+            value={this.state.inputValue}
+            onChange={event =>
+              this.handleInputChange(event.currentTarget.value)
+            }
+            ref={this.inputRef}
+          />
           <input type="submit" value="Submit" />
+          <SpeechInput
+            onSpeechInput={message => this.handleInputChange(message, true)}
+            onSpeechEnd={this.handleSubmitMessage}
+          />
         </form>
       </div>
     );

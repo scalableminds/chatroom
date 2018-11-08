@@ -244,4 +244,24 @@ $linkColor: #3498db;
       }
     }
   }
+
+  #speech-input {
+    height: 30px;
+    width: 30px;
+    margin-left: 5px;
+    background: $chromeColor;
+    border: 1px solid $chromeColor2;
+    color: $chromeColor2;
+    border-radius: 3px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+
+    &:hover {
+      background: $bubbleColor;
+    }
+  }
+
+  .vertical-center {
+    vertical-align: middle;
+  }
 }
