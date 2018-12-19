@@ -61,7 +61,7 @@ type ChatroomProps = {
   messages: Array<ChatMessage>,
   title: string,
   isOpen: boolean,
-  showWaitingBubble: boolean,
+  waitingForBotResponse: boolean,
   speechRecognition: ?string,
   onButtonClick: (message: string, payload: string) => *,
   onSendMessage: (message: string) => *,
@@ -186,8 +186,10 @@ export default class Chatroom extends Component<ChatroomProps, ChatroomState> {
   };
 
   render() {
-    const { messages, isOpen, showWaitingBubble } = this.props;
+    const { messages, isOpen, waitingForBotResponse } = this.props;
     const messageGroups = this.groupMessages(messages);
+    const isClickable = i =>
+      !waitingForBotResponse && i == messageGroups.length - 1;
 
     return (
       <div className={classnames("chatroom", isOpen ? "open" : "closed")}>
@@ -197,10 +199,12 @@ export default class Chatroom extends Component<ChatroomProps, ChatroomState> {
             <MessageGroup
               messages={group}
               key={i}
-              onButtonClick={this.handleButtonClick}
+              onButtonClick={
+                isClickable(i) ? this.handleButtonClick : undefined
+              }
             />
           ))}
-          {showWaitingBubble ? <WaitingBubble /> : null}
+          {waitingForBotResponse ? <WaitingBubble /> : null}
         </div>
         <form className="input" onSubmit={this.handleSubmitMessage}>
           <input

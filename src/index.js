@@ -73,7 +73,7 @@ window.DemoChatroom = function(options: DemoChatroomOptions) {
     this.ref = ReactDOM.render(
       <Chatroom
         messages={messages}
-        showWaitingBubble={showWaitingBubble}
+        waitingForBotResponse={showWaitingBubble}
         speechRecognition={null}
         isOpen={true}
         title={options.title || "Chat"}

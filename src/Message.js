@@ -27,7 +27,7 @@ export const MessageTime = ({ time, isBot }: MessageTimeProps) => {
 
 type MessageProps = {
   chat: ChatMessage,
-  onButtonClick: (title: string, payload: string) => void
+  onButtonClick?: (title: string, payload: string) => void
 };
 const Message = ({ chat, onButtonClick }: MessageProps) => {
   const message = chat.message;
@@ -42,7 +42,9 @@ const Message = ({ chat, onButtonClick }: MessageProps) => {
                 "chat-button-selected": selected
               })}
               key={payload}
-              onClick={() => onButtonClick(title, payload)}
+              onClick={
+                onButtonClick ? () => onButtonClick(title, payload) : undefined
+              }
             >
               <Markdown
                 source={title}
