@@ -39,7 +39,8 @@ const Message = ({ chat, onButtonClick }: MessageProps) => {
           {message.buttons.map(({ payload, title, selected }) => (
             <li
               className={classnames("chat-button", {
-                "chat-button-selected": selected
+                "chat-button-selected": selected,
+                "chat-button-disabled": !onButtonClick
               })}
               key={payload}
               onClick={
