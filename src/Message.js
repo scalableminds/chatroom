@@ -5,6 +5,7 @@ import breaks from "remark-breaks";
 import { formatDistance } from "date-fns";
 import classnames from "classnames";
 import type { ChatMessage } from "./Chatroom";
+import { noop } from "./utils";
 
 type MessageTimeProps = {
   time: number,
@@ -43,7 +44,9 @@ const Message = ({ chat, onButtonClick }: MessageProps) => {
               })}
               key={payload}
               onClick={
-                onButtonClick ? () => onButtonClick(title, payload) : undefined
+                onButtonClick != null
+                  ? () => onButtonClick(title, payload)
+                  : noop
               }
             >
               <Markdown
