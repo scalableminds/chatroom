@@ -256,7 +256,7 @@ export default class ConnectedChatroom extends Component<
       <Chatroom
         messages={renderableMessages}
         title={this.props.title}
-        showWaitingBubble={waitingForBotResponse}
+        waitingForBotResponse={waitingForBotResponse}
         isOpen={this.state.isOpen}
         speechRecognition={this.props.speechRecognition}
         onToggleChat={this.handleToggleChat}

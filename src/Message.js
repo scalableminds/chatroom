@@ -5,6 +5,7 @@ import breaks from "remark-breaks";
 import { formatDistance } from "date-fns";
 import classnames from "classnames";
 import type { ChatMessage } from "./Chatroom";
+import { noop } from "./utils";
 
 type MessageTimeProps = {
   time: number,
@@ -27,7 +28,7 @@ export const MessageTime = ({ time, isBot }: MessageTimeProps) => {
 
 type MessageProps = {
   chat: ChatMessage,
-  onButtonClick: (title: string, payload: string) => void
+  onButtonClick?: (title: string, payload: string) => void
 };
 const Message = ({ chat, onButtonClick }: MessageProps) => {
   const message = chat.message;
@@ -39,10 +40,15 @@ const Message = ({ chat, onButtonClick }: MessageProps) => {
           {message.buttons.map(({ payload, title, selected }) => (
             <li
               className={classnames("chat-button", {
-                "chat-button-selected": selected
+                "chat-button-selected": selected,
+                "chat-button-disabled": !onButtonClick
               })}
               key={payload}
-              onClick={() => onButtonClick(title, payload)}
+              onClick={
+                onButtonClick != null
+                  ? () => onButtonClick(title, payload)
+                  : noop
+              }
             >
               <Markdown
                 source={title}
