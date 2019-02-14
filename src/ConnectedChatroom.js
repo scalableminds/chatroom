@@ -14,6 +14,7 @@ type ConnectedChatroomProps = {
   waitingTimeout: number,
   pollingInterval: number,
   speechRecognition: ?string,
+  disableInputOnButton: ?boolean,
   messageBlacklist: Array<string>,
   fetchOptions?: RequestOptions
 };
@@ -259,6 +260,7 @@ export default class ConnectedChatroom extends Component<
         waitingForBotResponse={waitingForBotResponse}
         isOpen={this.state.isOpen}
         speechRecognition={this.props.speechRecognition}
+        disableInputOnButton={this.props.disableInputOnButton}
         onToggleChat={this.handleToggleChat}
         onButtonClick={this.handleButtonClick}
         onSendMessage={this.sendMessage}

@@ -216,6 +216,10 @@ $linkColor: #3498db;
         box-shadow: none;
         background-color: white;
       }
+	    &:disabled {
+        background-color: grey;
+        cursor: not-allowed;
+	    }
     }
 
     input[type="submit"] {

@@ -26,6 +26,7 @@ type DebuggerViewProps = {
   waitingTimeout?: number,
   pollingInterval?: number,
   speechRecognition: ?string,
+  disableInputOnButton: ?boolean,
   messageBlacklist?: Array<string>,
   fetchOptions?: RequestOptions
 };

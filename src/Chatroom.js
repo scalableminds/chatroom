@@ -63,6 +63,7 @@ type ChatroomProps = {
   isOpen: boolean,
   waitingForBotResponse: boolean,
   speechRecognition: ?string,
+  disableInputOnButton: ?boolean,
   onButtonClick: (message: string, payload: string) => *,
   onSendMessage: (message: string) => *,
   onToggleChat: () => *
@@ -186,10 +187,12 @@ export default class Chatroom extends Component<ChatroomProps, ChatroomState> {
   };
 
   render() {
-    const { messages, isOpen, waitingForBotResponse } = this.props;
+    const { messages, isOpen, waitingForBotResponse, disableInputOnButton } = this.props;
     const messageGroups = this.groupMessages(messages);
     const isClickable = i =>
       !waitingForBotResponse && i == messageGroups.length - 1;
+	const isInputDisabled = () =>
+	  messageGroups[messageGroups.length-1][0].message.type === "button";
 
     return (
       <div className={classnames("chatroom", isOpen ? "open" : "closed")}>
@@ -209,6 +212,9 @@ export default class Chatroom extends Component<ChatroomProps, ChatroomState> {
         <form className="input" onSubmit={this.handleSubmitMessage}>
           <input
             type="text"
+            disabled={
+              disableInputOnButton ? isInputDisabled() : false
+            }
             value={this.state.inputValue}
             onChange={event =>
               this.handleInputChange(event.currentTarget.value)
