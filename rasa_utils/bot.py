@@ -23,6 +23,7 @@ from rasa_core.channels import (
     BUILTIN_CHANNELS)
 from rasa_core.interpreter import (
     NaturalLanguageInterpreter)
+from rasa_core.tracker_store import TrackerStore
 from rasa_core.utils import read_yaml_file, AvailableEndpoints
 from .bot_server_channel import BotServerInputChannel
 
@@ -118,6 +119,7 @@ def load_agent(core_model, interpreter, endpoints,
                           tracker_store=tracker_store,
                           action_endpoint=endpoints.action)
 
+
 def preprocessor(message_text):
     text = message_text.strip()
     return text
@@ -140,9 +142,12 @@ if __name__ == '__main__':
     _endpoints = AvailableEndpoints.read_endpoints(cmdline_args.endpoints)
     _interpreter = NaturalLanguageInterpreter.create(cmdline_args.nlu,
                                                      _endpoints.nlu)
+    _tracker_store = TrackerStore.find_tracker_store(
+        None, _endpoints.tracker_store, None)
     _agent = load_agent(cmdline_args.core,
                         interpreter=_interpreter,
-                        endpoints=_endpoints)
+                        endpoints=_endpoints,
+                        tracker_store=_tracker_store)
 
     channel = BotServerInputChannel(_agent, preprocessor=preprocessor, port=cmdline_args.port)
     _agent.handle_channels([channel], http_port=cmdline_args.port)
