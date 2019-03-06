@@ -12,8 +12,10 @@ from flask import Blueprint, jsonify, request, Flask, Response, make_response
 from flask_cors import CORS
 
 from rasa_core.channels.channel import UserMessage
-from rasa_core.channels.channel import InputChannel, OutputChannel
+from rasa_core.channels.channel import RestInput, OutputChannel
 from rasa_core.events import SlotSet
+
+from rasa_core import utils
 
 logger = logging.getLogger()
 
@@ -26,10 +28,12 @@ class FileMessageStore:
         self._store = defaultdict(list)
         self._filename = filename
         try:
-            for k, v in json.load(open(self._filename, "r")).items():
-                self._store[k] = v
-        except IOError:
-            pass
+            with open(self._filename, "r") as message_store_file:
+                for k, v in json.load(message_store_file).items():
+                    self._store[k] = v
+        except IOError as e:
+            logger.error(f"The file \"{self._filename}\" may be missing, which prevents the message store from functioning properly.")
+            logger.error(e)
 
     def log(self, cid, username, message, uuid=None):
         if uuid is None:
@@ -49,7 +53,11 @@ class FileMessageStore:
         self.save()
 
     def save(self):
-        json.dump(self._store, open(self._filename, "w"))
+        try:
+            with open(self._filename, "w") as message_store_file:
+                json.dump(self._store, message_store_file)
+        except Exception as e:
+            logger.error(f"There was an error while trying to save messages to the file \"{self._filename}\".")
 
     def __getitem__(self, key):
         return self._store[key]
@@ -84,7 +92,7 @@ class BotServerOutputChannel(OutputChannel):
         )
 
 
-class BotServerInputChannel(InputChannel):
+class BotServerInputChannel(RestInput):
 
     def __init__(
         self, agent=None, preprocessor=None, port=5002, message_store=FileMessageStore()
