@@ -57,7 +57,7 @@ class DebuggerView extends Component<DebuggerViewProps, DebuggerViewState> {
 
   fetchTracker(): Promise<TrackerState> {
     const { host, userId } = this.props;
-    return fetch(`${host}/conversations/${userId}/tracker`).then(res =>
+    return fetch(`${host}/webhooks/chatroom/conversations/${userId}/tracker`).then(res =>
       res.json()
     );
   }
