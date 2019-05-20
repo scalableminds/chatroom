@@ -146,7 +146,7 @@ export default class ConnectedChatroom extends Component<
       if (message.image) messageObj.message = { type: "image", image: message.image };
 
       // probably should be handled with special UI elements
-      if (message.attachment) messageObj.message = { type: "text", buttons: message.attachment };
+      if (message.attachment) messageObj.message = { type: "text", text: message.attachment };
 
       return messageObj;
     });
