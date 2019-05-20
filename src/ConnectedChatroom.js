@@ -12,94 +12,87 @@ type ConnectedChatroomProps = {
   welcomeMessage: ?string,
   title: string,
   waitingTimeout: number,
-  pollingInterval: number,
   messageBlacklist: Array<string>,
-  fetchOptions?: RequestOptions
+  fetchOptions?: RequestOptions,
 };
 type ConnectedChatroomState = {
   messages: Array<ChatMessage>,
-  localMessages: Array<ChatMessage>,
+  messageQueue: Array<ChatMessage>,
   isOpen: boolean,
   waitingForBotResponse: boolean,
-  messageCounter: number
+};
+
+type RasaMessage = {
+  sender_id: string,
+  text?: string,
+  buttons?: Object,
+  image?: string,
 };
 
 export default class ConnectedChatroom extends Component<
   ConnectedChatroomProps,
-  ConnectedChatroomState
+  ConnectedChatroomState,
 > {
   state = {
     messages: [],
-    localMessages: [],
+    messageQueue: [],
     isOpen: false,
     waitingForBotResponse: false,
-    messageCounter: -1
+    messageCounter: -1,
   };
 
   static defaultProps = {
     waitingTimeout: 5000,
-    pollingInterval: 1000,
-    messageBlacklist: ["_restart", "_start"]
+    messageBlacklist: ["_restart", "_start", "/restart", "/start"],
   };
 
   waitingForBotResponseTimer: ?TimeoutID = null;
-  messageCounterInterval: ?IntervalID = null;
-  _isMounted: boolean = false;
+  messageQueueInterval: ?IntervalID = null;
   chatroomRef = React.createRef();
 
   componentDidMount() {
-    this._isMounted = true;
-    this.poll();
-  }
+    const messageDelay = 800; //delay between message in ms
+    this.messageQueueInterval = window.setInterval(this.queuedMessagesInterval, messageDelay);
 
-  componentDidUpdate(
-    prevProps: ConnectedChatroomProps,
-    prevState: ConnectedChatroomState
-  ) {
-    if (!prevState.isOpen && this.state.isOpen) {
-      this.fetchMessages();
+    if (this.props.welcomeMessage) {
+      const welcomeMessage = {
+        message: { type: "text", text: this.props.welcomeMessage },
+        time: Date.now(),
+        username: "bot",
+        uuid: uuidv4(),
+      };
+      this.setState({ messages: [welcomeMessage] });
     }
   }
 
   componentWillUnmount() {
-    this._isMounted = false;
     if (this.waitingForBotResponseTimer != null) {
       window.clearTimeout(this.waitingForBotResponseTimer);
       this.waitingForBotResponseTimer = null;
     }
-    if (this.messageCounterInterval != null) {
-      window.clearInterval(this.messageCounterInterval);
-      this.messageCounterInterval = null;
+    if (this.messageQueueInterval != null) {
+      window.clearInterval(this.messageQueueInterval);
+      this.messageQueueInterval = null;
     }
   }
 
-  sendMessage = async (messageText: string, payload?: string) => {
+  sendMessage = async (messageText: string) => {
     if (messageText === "") return;
 
     const messageObj = {
       message: { type: "text", text: messageText },
       time: Date.now(),
       username: this.props.userId,
-      uuid: uuidv4()
+      uuid: uuidv4(),
     };
 
     if (!this.props.messageBlacklist.includes(messageText)) {
       this.setState({
-        localMessages: [...this.state.localMessages, messageObj],
         // Reveal all queued bot messages when the user sends a new message
-        messageCounter: this.state.messages.length
+        messages: [...this.state.messages, ...this.state.messageQueue, messageObj],
+        messageQueue: [],
       });
     }
-
-    const getParameters = {
-      message: messageObj.message.text,
-      payload: payload,
-      uuid: messageObj.uuid
-    };
-    const getParametersString = Object.keys(getParameters)
-      .filter(k => getParameters[k] != null)
-      .map(k => `${k}=${encodeURI(String(getParameters[k]))}`)
-      .join("&");
 
     this.setState({ waitingForBotResponse: true });
     if (this.waitingForBotResponseTimer != null) {
@@ -110,93 +103,77 @@ export default class ConnectedChatroom extends Component<
         this.setState({ waitingForBotResponse: false });
       }
     }, this.props.waitingTimeout);
-    await fetch(
-      `${this.props.host}/webhooks/chatroom/conversations/${
-        this.props.userId
-      }/say?${getParametersString}`,
-      this.props.fetchOptions
-    );
+
+    const rasaMessageObj = {
+      message: messageObj.message.text,
+      sender: this.props.userId,
+    };
+
+    const fetchOptions = Object.assign({}, this.props.fetchOptions, {
+      method: "POST",
+      body: JSON.stringify(rasaMessageObj),
+      headers: {
+        "Content-Type": "application/json",
+      },
+    });
+
+    const response = await fetch(`${this.props.host}/webhooks/rest/webhook`, fetchOptions);
+    const messages = await response.json();
+
+    this.parseMessages(messages);
 
     if (window.ga != null) {
       window.ga("send", "event", "chat", "chat-message-sent");
     }
-    await this.fetchMessages();
   };
 
-  async fetchMessages() {
-    const res = await fetch(
-      `${this.props.host}/webhooks/chatroom/conversations/${
-        this.props.userId
-      }/log?nocache=${Date.now()}`,
-      this.props.fetchOptions
-    );
-    const messages = await res.json();
+  async parseMessages(RasaMessages: Array<RasaMessage>) {
+    const messages = RasaMessages.map(message => {
+      const messageObj = {
+        message: {},
+        time: Date.now(),
+        username: "bot",
+        uuid: uuidv4(),
+      };
 
-    // Fix dates
-    messages.forEach(m => {
-      m.time = Date.parse(`${m.time}Z`);
+      if (message.text) messageObj.message = { type: "text", text: message.text };
+
+      if (message.buttons) messageObj.message = { type: "button", buttons: message.buttons };
+
+      if (message.image) messageObj.message = { type: "image", image: message.image };
+
+      // probably should be handled with special UI elements
+      if (message.attachment) messageObj.message = { type: "text", buttons: message.attachment };
+
+      return messageObj;
     });
-
-    // Remove redundant local messages
-    const localMessages = this.state.localMessages.filter(
-      m => !messages.some(n => n.uuid === m.uuid)
-    );
 
     // Bot messages should be displayed in a queued manner. Not all at once
-    let { messageCounter } = this.state;
-
-    // Show all previous messages at the beginning of the session, e.g. page refresh
-    if (messageCounter < 0) {
-      messageCounter = messages.length;
-    }
-    if (messageCounter < messages.length) {
-      // Increase the counter in every loop
-      messageCounter++;
-
-      // Set the counter to the last user message
-      let lastUserMessageIndex = messages.length - 1;
-      for (
-        ;
-        lastUserMessageIndex >= 0 &&
-        messages[lastUserMessageIndex].username === "bot";
-        lastUserMessageIndex--
-      );
-
-      messageCounter = Math.max(lastUserMessageIndex, messageCounter);
-    }
-
-    // We might still be waiting on bot responses,
-    // if there are unconfirmed user messages or missing replies
-    const waitingForBotResponse =
-      (this.state.waitingForBotResponse &&
-        messageCounter !== messages.length) ||
-      (localMessages.length > 0 &&
-        (messages.length === 0 ||
-          messages[messages.length - 1].username !== "bot"));
-
-    this.setState({
-      messages,
-      localMessages,
-      waitingForBotResponse,
-      messageCounter
+    const newState = Object.assign({}, this.state, {
+      messageQueue: [...this.state.messageQueue, ...messages],
     });
+    this.setState(newState);
   }
 
-  async poll() {
-    while (this._isMounted) {
-      try {
-        if (this.state.isOpen) {
-          await this.fetchMessages();
-        }
-      } catch (err) {
-        // pass
-      }
-      await sleep(this.props.pollingInterval);
+  queuedMessagesInterval = () => {
+    const { messages, messageQueue } = this.state;
+
+    if (messageQueue.length > 0) {
+      const message = messageQueue.shift();
+      const waitingForBotResponse = messageQueue.length > 0;
+
+      const newState = Object.assign({}, this.state, {
+        messages: [...messages, message],
+        messageQueue,
+        waitingForBotResponse,
+      });
+
+      this.setState(newState);
     }
-  }
+  };
 
-  handleButtonClick = (message: string, payload: string) => {
-    this.sendMessage(message, payload);
+  handleButtonClick = (buttonTitle: string, payload: string) => {
+    this.sendMessage(payload);
     if (window.ga != null) {
       window.ga("send", "event", "chat", "chat-button-click");
     }
@@ -214,40 +191,13 @@ export default class ConnectedChatroom extends Component<
   };
 
   render() {
-    const {
-      messages,
-      localMessages,
-      waitingForBotResponse,
-      messageCounter
-    } = this.state;
+    const { messages, waitingForBotResponse } = this.state;
 
-    const welcomeMessage =
-      this.props.welcomeMessage != null
-        ? {
-            username: "bot",
-            time: 0,
-            message: {
-              text: this.props.welcomeMessage,
-              type: "text"
-            },
-            uuid: "9b9c4e2d-eb7f-4425-b23c-30c25bd7f507"
-          }
-        : null;
-
-    let renderableMessages =
-      welcomeMessage != null
-        ? [
-            welcomeMessage,
-            ...messages.slice(0, Math.max(0, messageCounter)),
-            ...localMessages
-          ]
-        : [...messages.slice(0, Math.max(0, messageCounter)), ...localMessages];
-
-    renderableMessages = renderableMessages
+    const renderableMessages = messages
       .filter(
         message =>
           message.message.type !== "text" ||
-          !this.props.messageBlacklist.includes(message.message.text)
+          !this.props.messageBlacklist.includes(message.message.text),
       )
       .sort((a, b) => a.time - b.time);
 
