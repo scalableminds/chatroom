@@ -1637,6 +1637,10 @@ camelcase@^3.0.0:
   version "3.0.0"
   resolved "https://registry.yarnpkg.com/camelcase/-/camelcase-3.0.0.tgz#32fc4b9fcdaf845fcdf7e73bb97cac2261f0ab0a"
 
+camelcase@^5.0.0:
+  version "5.3.1"
+  resolved "https://registry.yarnpkg.com/camelcase/-/camelcase-5.3.1.tgz#e3c9b31569e106811df242f715725a1f4c494320"
+
 caniuse-api@^3.0.0:
   version "3.0.0"
   resolved "https://registry.yarnpkg.com/caniuse-api/-/caniuse-api-3.0.0.tgz#5e4d90e2274961d46291997df599e3ed008ee4c0"
@@ -2129,6 +2133,10 @@ data-urls@^1.0.0:
     abab "^2.0.0"
     whatwg-mimetype "^2.2.0"
     whatwg-url "^7.0.0"
+
+date-fns@2.0.0-alpha.23:
+  version "2.0.0-alpha.23"
+  resolved "https://registry.yarnpkg.com/date-fns/-/date-fns-2.0.0-alpha.23.tgz#d3384f4628de78a4819fb3292286c8fa77cb175d"
 
 date-now@^0.1.4:
   version "0.1.4"
@@ -3608,10 +3616,6 @@ mkdirp@0.5.x, "mkdirp@>=0.5 0", mkdirp@^0.5.0, mkdirp@^0.5.1, mkdirp@~0.5.1:
   dependencies:
     minimist "0.0.8"
 
-moment@^2.21.0:
-  version "2.24.0"
-  resolved "https://registry.yarnpkg.com/moment/-/moment-2.24.0.tgz#0d055d53f5052aa653c9f6eb68bb5d12bf5c2b5b"
-
 ms@2.0.0:
   version "2.0.0"
   resolved "https://registry.yarnpkg.com/ms/-/ms-2.0.0.tgz#5608aeadfc00be6c2901df5f9861788de0d597c8"
@@ -4590,6 +4594,12 @@ react-dom@^16.5.0:
     object-assign "^4.1.1"
     prop-types "^15.6.2"
     scheduler "^0.13.6"
+
+react-icons@^3.2.1:
+  version "3.7.0"
+  resolved "https://registry.yarnpkg.com/react-icons/-/react-icons-3.7.0.tgz#64fe46231fabfeea27895edeae6c3b78114b8c8f"
+  dependencies:
+    camelcase "^5.0.0"
 
 react-is@^16.8.1:
   version "16.8.6"

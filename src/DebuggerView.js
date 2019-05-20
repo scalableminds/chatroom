@@ -25,6 +25,7 @@ type DebuggerViewProps = {
   title: string,
   waitingTimeout?: number,
   pollingInterval?: number,
+  speechRecognition: ?string,
   messageBlacklist?: Array<string>,
   fetchOptions?: RequestOptions
 };
@@ -56,7 +57,7 @@ class DebuggerView extends Component<DebuggerViewProps, DebuggerViewState> {
 
   fetchTracker(): Promise<TrackerState> {
     const { host, userId } = this.props;
-    return fetch(`${host}/conversations/${userId}/tracker`).then(res =>
+    return fetch(`${host}/webhooks/chatroom/conversations/${userId}/tracker`).then(res =>
       res.json()
     );
   }
@@ -111,6 +112,7 @@ class DebuggerView extends Component<DebuggerViewProps, DebuggerViewState> {
             userId={this.props.userId}
             host={this.props.host}
             title={"Chat"}
+            speechRecognition={this.props.speechRecognition}
             welcomeMessage={this.props.welcomeMessage}
             waitingTimeout={this.props.waitingTimeout}
             pollingInterval={this.props.pollingInterval}

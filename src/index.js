@@ -17,6 +17,7 @@ type ChatroomOptions = {
   host: string,
   title?: string,
   welcomeMessage?: string,
+  speechRecognition?: string,
   startMessage?: string,
   container: HTMLElement,
   waitingTimeout?: number,
@@ -39,6 +40,7 @@ window.Chatroom = function(options: ChatroomOptions) {
       userId={sessionUserId}
       host={options.host}
       title={options.title || "Chat"}
+      speechRecognition={options.speechRecognition}
       welcomeMessage={options.welcomeMessage}
       waitingTimeout={options.waitingTimeout}
       pollingInterval={options.pollingInterval}
@@ -71,7 +73,8 @@ window.DemoChatroom = function(options: DemoChatroomOptions) {
     this.ref = ReactDOM.render(
       <Chatroom
         messages={messages}
-        showWaitingBubble={showWaitingBubble}
+        waitingForBotResponse={showWaitingBubble}
+        speechRecognition={null}
         isOpen={true}
         title={options.title || "Chat"}
         onButtonClick={noop}
@@ -201,6 +204,7 @@ window.DebugChatroom = function(options: ChatroomOptions) {
       userId={sessionUserId}
       host={options.host}
       title={options.title || "Chat"}
+      speechRecognition={options.speechRecognition}
       welcomeMessage={options.welcomeMessage}
       waitingTimeout={options.waitingTimeout}
       pollingInterval={options.pollingInterval}

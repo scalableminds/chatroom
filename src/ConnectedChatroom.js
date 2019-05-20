@@ -12,6 +12,7 @@ type ConnectedChatroomProps = {
   welcomeMessage: ?string,
   title: string,
   waitingTimeout: number,
+  speechRecognition: ?string,
   messageBlacklist: Array<string>,
   fetchOptions?: RequestOptions,
 };
@@ -38,7 +39,6 @@ export default class ConnectedChatroom extends Component<
     messageQueue: [],
     isOpen: false,
     waitingForBotResponse: false,
-    messageCounter: -1,
   };
 
   static defaultProps = {
@@ -99,9 +99,7 @@ export default class ConnectedChatroom extends Component<
       window.clearTimeout(this.waitingForBotResponseTimer);
     }
     this.waitingForBotResponseTimer = setTimeout(() => {
-      if (this.state.messageCounter === this.state.messages.length) {
-        this.setState({ waitingForBotResponse: false });
-      }
+      this.setState({ waitingForBotResponse: false });
     }, this.props.waitingTimeout);
 
     const rasaMessageObj = {
@@ -128,7 +126,12 @@ export default class ConnectedChatroom extends Component<
   };
 
   async parseMessages(RasaMessages: Array<RasaMessage>) {
-    const messages = RasaMessages.map(message => {
+    const validMessageTypes = ["text", "image", "buttons", "attachment"];
+
+    debugger;
+    const messages = RasaMessages.filter(message =>
+      validMessageTypes.some(type => type in message),
+    ).map(message => {
       const messageObj = {
         message: {},
         time: Date.now(),
@@ -149,8 +152,10 @@ export default class ConnectedChatroom extends Component<
     });
 
     // Bot messages should be displayed in a queued manner. Not all at once
+    const messageQueue = [...this.state.messageQueue, ...messages];
     const newState = Object.assign({}, this.state, {
-      messageQueue: [...this.state.messageQueue, ...messages],
+      messageQueue,
+      waitingForBotResponse: messageQueue.length > 0,
     });
     this.setState(newState);
   }
@@ -205,8 +210,9 @@ export default class ConnectedChatroom extends Component<
       <Chatroom
         messages={renderableMessages}
         title={this.props.title}
-        showWaitingBubble={waitingForBotResponse}
+        waitingForBotResponse={waitingForBotResponse}
         isOpen={this.state.isOpen}
+        speechRecognition={this.props.speechRecognition}
         onToggleChat={this.handleToggleChat}
         onButtonClick={this.handleButtonClick}
         onSendMessage={this.sendMessage}
