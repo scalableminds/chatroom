@@ -127,7 +127,6 @@ export default class ConnectedChatroom extends Component<
   async parseMessages(RasaMessages: Array<RasaMessage>) {
     const validMessageTypes = ["text", "image", "buttons", "attachment"];
 
-    debugger;
     const messages = RasaMessages.filter((message: RasaMessage) =>
       validMessageTypes.some(type => type in message),
     ).map((message: RasaMessage) => {
