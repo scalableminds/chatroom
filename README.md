@@ -11,7 +11,7 @@
 ## Features
 
 * React-based component
-* Markdown, Images, Buttons
+* Supports Text with Markdown formatting, Images, and Buttons
 * Customizable with SASS variables
 * Generates a unique session id and keeps it in `sessionStorage`
 * Queues consecutive bot messages for better readability
