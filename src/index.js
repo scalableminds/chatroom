@@ -22,6 +22,7 @@ type ChatroomOptions = {
   container: HTMLElement,
   waitingTimeout?: number,
   fetchOptions?: RequestOptions,
+  rasaToken?: string,
 };
 
 window.Chatroom = function(options: ChatroomOptions) {

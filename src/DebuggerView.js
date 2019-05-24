@@ -27,7 +27,7 @@ type DebuggerViewProps = {
   speechRecognition: ?string,
   messageBlacklist?: Array<string>,
   fetchOptions?: RequestOptions,
-  rasaToken: string,
+  rasaToken?: string,
 };
 type DebuggerViewState = {
   tracker: ?TrackerState,
@@ -56,9 +56,16 @@ class DebuggerView extends Component<DebuggerViewProps, DebuggerViewState> {
 
   fetchTracker(): Promise<TrackerState> {
     const { host, userId, rasaToken } = this.props;
-    return fetch(`${host}/conversations/${userId}/tracker?token=${rasaToken}`).then(res =>
-      res.json(),
-    );
+
+    if (rasaToken) {
+      return fetch(`${host}/conversations/${userId}/tracker?token=${rasaToken}`).then(res =>
+        res.json(),
+      );
+    } else {
+      throw Error(
+        'Rasa Auth Token is missing. Start your bot with the REST API enabled and specify an auth token. E.g. --enable_api --cors "*" --auth_token abc',
+      );
+    }
   }
 
   updateTrackerView = async () => {
