@@ -23,12 +23,11 @@ type ConnectedChatroomState = {
   waitingForBotResponse: boolean,
 };
 
-type RasaMessage = {
-  sender_id: string,
-  text?: string,
-  buttons?: Object,
-  image?: string,
-};
+type RasaMessage =
+  | {| sender_id: string, text: string |}
+  | {| sender_id: string, buttons: Array<{ title: string, payload: string, selected?: boolean }> |}
+  | {| sender_id: string, image: string |}
+  | {| sender_id: string, attachment: string |};
 
 export default class ConnectedChatroom extends Component<
   ConnectedChatroomProps,
@@ -129,35 +128,37 @@ export default class ConnectedChatroom extends Component<
     const validMessageTypes = ["text", "image", "buttons", "attachment"];
 
     debugger;
-    const messages = RasaMessages.filter(message =>
+    const messages = RasaMessages.filter((message: RasaMessage) =>
       validMessageTypes.some(type => type in message),
-    ).map(message => {
+    ).map((message: RasaMessage) => {
+      let botMessageObj;
+      if (message.text) botMessageObj = { type: "text", text: message.text };
+
+      if (message.buttons) botMessageObj = { type: "button", buttons: message.buttons };
+
+      if (message.image) botMessageObj = { type: "image", image: message.image };
+
+      // probably should be handled with special UI elements
+      if (message.attachment) botMessageObj = { type: "text", text: message.attachment };
+
+      if (botMessageObj == null) throw Error("Could not parse message from Bot or empty message");
+
       const messageObj = {
-        message: {},
+        message: botMessageObj,
         time: Date.now(),
         username: "bot",
         uuid: uuidv4(),
       };
-
-      if (message.text) messageObj.message = { type: "text", text: message.text };
-
-      if (message.buttons) messageObj.message = { type: "button", buttons: message.buttons };
-
-      if (message.image) messageObj.message = { type: "image", image: message.image };
-
-      // probably should be handled with special UI elements
-      if (message.attachment) messageObj.message = { type: "text", text: message.attachment };
 
       return messageObj;
     });
 
     // Bot messages should be displayed in a queued manner. Not all at once
     const messageQueue = [...this.state.messageQueue, ...messages];
-    const newState = Object.assign({}, this.state, {
+    this.setState({
       messageQueue,
       waitingForBotResponse: messageQueue.length > 0,
     });
-    this.setState(newState);
   }
 
   queuedMessagesInterval = () => {
@@ -167,13 +168,11 @@ export default class ConnectedChatroom extends Component<
       const message = messageQueue.shift();
       const waitingForBotResponse = messageQueue.length > 0;
 
-      const newState = Object.assign({}, this.state, {
+      this.setState({
         messages: [...messages, message],
         messageQueue,
         waitingForBotResponse,
       });
-
-      this.setState(newState);
     }
   };
 
