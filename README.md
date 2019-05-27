@@ -51,6 +51,8 @@ rest:
   # pass
 ```
 
+Depending on your setup you might need to start the Rasa CLI / Rasa server with the right CORS headers, e.g. `--cors "*"`.
+
 Note, the version of the Chatroom's Javascript file is encoded in the URL. `chatroom@master` is always the latest version from the GitHub master branch. Use e.g. `chatroom@0.10.0` to load a specific release. [All Releases can be found here.](https://github.com/scalableminds/chatroom/releases)
 
 
