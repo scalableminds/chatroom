@@ -15,7 +15,7 @@ type TrackerState = {
   paused: boolean,
   sender_id: string,
   latest_message: Object,
-  events: Array<Object>
+  events: Array<Object>,
 };
 
 type DebuggerViewProps = {
@@ -24,17 +24,17 @@ type DebuggerViewProps = {
   welcomeMessage: ?string,
   title: string,
   waitingTimeout?: number,
-  pollingInterval?: number,
   speechRecognition: ?string,
   messageBlacklist?: Array<string>,
-  fetchOptions?: RequestOptions
+  fetchOptions?: RequestOptions,
+  rasaToken?: string,
 };
 type DebuggerViewState = {
-  tracker: ?TrackerState
+  tracker: ?TrackerState,
 };
 class DebuggerView extends Component<DebuggerViewProps, DebuggerViewState> {
   state = {
-    tracker: null
+    tracker: null,
   };
   intervalHandle = 0;
   chatroomRef = React.createRef();
@@ -50,16 +50,22 @@ class DebuggerView extends Component<DebuggerViewProps, DebuggerViewState> {
   }
 
   getChatroom() {
-    if (this.chatroomRef.current == null)
-      throw new TypeError("chatroomRef is null.");
+    if (this.chatroomRef.current == null) throw new TypeError("chatroomRef is null.");
     return this.chatroomRef.current;
   }
 
   fetchTracker(): Promise<TrackerState> {
-    const { host, userId } = this.props;
-    return fetch(`${host}/webhooks/chatroom/conversations/${userId}/tracker`).then(res =>
-      res.json()
-    );
+    const { host, userId, rasaToken } = this.props;
+
+    if (rasaToken) {
+      return fetch(`${host}/conversations/${userId}/tracker?token=${rasaToken}`).then(res =>
+        res.json(),
+      );
+    } else {
+      throw Error(
+        'Rasa Auth Token is missing. Start your bot with the REST API enabled and specify an auth token. E.g. --enable_api --cors "*" --auth_token abc',
+      );
+    }
   }
 
   updateTrackerView = async () => {
@@ -71,41 +77,43 @@ class DebuggerView extends Component<DebuggerViewProps, DebuggerViewState> {
     const { tracker } = this.state;
     const preStyle = {
       fontFamily: "Monaco, Consolas, Courier, monospace",
-      fontSize: "10pt"
+      fontSize: "10pt",
     };
 
     return (
       <div style={{ display: "flex", margin: "5vh 5vw", height: "90vh" }}>
-        <div style={{ flex: 2, overflowY: "auto" }}>
-          <div>
-            <p>
-              Bot address: <strong>{this.props.host}</strong>
-            </p>
-            <p>
-              Session Id: <strong>{this.props.userId}</strong>
-            </p>
-          </div>
-          {tracker != null ? (
+        {this.props.rasaToken ? (
+          <div style={{ flex: 2, overflowY: "auto" }}>
             <div>
-              <h3>Slots</h3>
-              <pre style={preStyle}>
-                {JSON.stringify(tracker.slots, null, 2)}
-              </pre>
-              <h3>Latest Message</h3>
-              <pre style={preStyle}>
-                {JSON.stringify(
-                  without(tracker.latest_message, "intent_ranking"),
-                  null,
-                  2
-                )}
-              </pre>
-              <h3>Events</h3>
-              <pre style={preStyle}>
-                {JSON.stringify(tracker.events, null, 2)}
-              </pre>
+              <p>
+                Bot address: <strong>{this.props.host}</strong>
+              </p>
+              <p>
+                Session Id: <strong>{this.props.userId}</strong>
+              </p>
             </div>
-          ) : null}
-        </div>
+            {tracker != null ? (
+              <div>
+                <h3>Slots</h3>
+                <pre style={preStyle}>{JSON.stringify(tracker.slots, null, 2)}</pre>
+                <h3>Latest Message</h3>
+                <pre style={preStyle}>
+                  {JSON.stringify(without(tracker.latest_message, "intent_ranking"), null, 2)}
+                </pre>
+                <h3>Events</h3>
+                <pre style={preStyle}>{JSON.stringify(tracker.events, null, 2)}</pre>
+              </div>
+            ) : null}
+          </div>
+        ) : (
+          <div style={{ flex: 2, overflowY: "auto" }}>
+            Either Rasa REST API is not enabled (e.g. --enable_api --cors "*") or{" "}
+            <a href="https://rasa.com/docs/rasa/api/http-api/">
+              Token is missing (--auth_token abc)
+            </a>
+            .
+          </div>
+        )}
         <div style={{ flex: 1 }}>
           <ConnectedChatroom
             ref={this.chatroomRef}
@@ -114,8 +122,6 @@ class DebuggerView extends Component<DebuggerViewProps, DebuggerViewState> {
             title={"Chat"}
             speechRecognition={this.props.speechRecognition}
             welcomeMessage={this.props.welcomeMessage}
-            waitingTimeout={this.props.waitingTimeout}
-            pollingInterval={this.props.pollingInterval}
             fetchOptions={this.props.fetchOptions}
           />
         </div>

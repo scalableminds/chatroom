@@ -11,17 +11,17 @@
 ## Features
 
 * React-based component
-* Markdown, Images, Buttons
+* Supports Text with Markdown formatting, Images, and Buttons
 * Customizable with SASS variables
 * Generates a unique session id and keeps it in `sessionStorage`
 * Queues consecutive bot messages for better readability
 * Speech input (only in Chrome for now)
 * Demo mode included (ideal for scripted screencasts)
 * Hosted on S3 for easy use
-* Includes a `BotServerChannel` for use with [Rasa Core](https://github.com/rasahq/rasa_core) (under `rasa_utils`)
+* Simple setup. Works with Rasa's [REST channel](https://rasa.com/docs/rasa/user-guide/connectors/your-own-website/#rest-channels)
 
 ## Usage
-Embed the `chatroom.js` in the HTML of your website and configure it to connect to your Rasa bot. (see below)
+1. Embed the `chatroom.js` in the HTML of your website and configure it to connect to your Rasa bot. Either use the S3 hosted version or build it yourself. (see below)
 
 ```html
 <head>
@@ -43,73 +43,26 @@ Embed the `chatroom.js` in the HTML of your website and configure it to connect 
   </script>
 </body>
 ```
-Note, the version of the Chatroom's Javascript file is encoded in the URL. `chatroom@master` is always the latest version from the GitHub master branch. Use e.g. `chatroom@0.8.2` to load a specific release. [All Releases can be found here.](https://github.com/scalableminds/chatroom/releases) 
 
 
-| Chatroom Version | Compatible Rasa Core Version |
-|------------------|------------------------------|
-| 0.9.x            | 0.11.4+, 0.13.7              |
-| 0.8.x            | 0.11.4+                      |
-| 0.7.8            | 0.10.4+                      |
-
-
-### Basic usage
-
-* Clone repository
-* Install frontend dependencies `yarn install`
-* Build frontend files `yarn build`
-* Create an HTML page for your Chatroom (see usage example above or modify [index.html](./index.html))
-* Make sure to adjust the `host` option. Use `http://localhost:5005` when testing locally
-* Run `yarn serve` to launch a web server with your Chatroom on `http://localhost:8080`
-* Integrate with a Rasa Core project (see standard or custom project below)
-
-### Usage with a standard Rasa Core project
-
-* Copy `rasa_utils` to your project
-* Install the Python dependencies from `rasa_utils/requirements.txt`
-* Run your bot with `python -m rasa_utils.bot -d models/current/dialogue -u models/current/nlu`
-* The bot server will be available at `0.0.0.0:5005`
-
-
-### Simple Usage with a custom Rasa Core project on CLI
-* Copy the `rasa_utils/bot_server_channel.py` to your project
-* Install the Python dependencies from `rasa_utils/requirements.txt`
-* Create or Modifiy `credentials.yml` file and add:
+2. In your Rasa bot setup, make sure to include the Rasa [REST channel](https://rasa.com/docs/rasa/user-guide/connectors/your-own-website/#rest-channels) in your `credentials.yml` file:
 ```
-rasa_utils.bot_server_channel.BotServerInputChannel:
+rest:
   # pass
 ```
-* Start the Rasa bot using the command line and pass the `--credentials` flag:
-```
-python -m rasa_core.run  \
-  --core models/current/dialogue  \
-  --nlu models/current/nlu  \
-  --endpoints endpoints.yml \
-  --credentials credentials.yml
-```
+
+Note, the version of the Chatroom's Javascript file is encoded in the URL. `chatroom@master` is always the latest version from the GitHub master branch. Use e.g. `chatroom@0.10.0` to load a specific release. [All Releases can be found here.](https://github.com/scalableminds/chatroom/releases)
 
 
-### Advanced Usage with a custom Rasa Core project as Custom Channel from Python
-* Copy the `rasa_utils/bot_server_channel.py` to your project
-* Install the Python dependencies from `rasa_utils/requirements.txt`
-* Register the `BotServerInputChannel` with your Rasa Core `Agent` (see below)
-* Run your bot. By default the bot server will be available at `0.0.0.0:5005`
+| Chatroom Version  | Compatible Rasa Core Version |
+|-------------------|------------------------------|
+| 0.10.x            | 1.0                          |
+| 0.9.x (Deprecated)| 0.11.4+, 0.13.7              |
+| 0.8.x (Deprecated)| 0.11.4+                      |
+| 0.7.8 (Deprecated)| 0.10.4+                      |
 
-```python
-from bot_server_channel import BotServerInputChannel
+Note, versions prior to `0.10.x` used a custom Python channel to connect the chatroom frontend with a Rasa bot backend. Upgrading, from version `0.9.x` or below will require you to modify the `credentials.yml` and include the Rasa REST channel. (see installation instructions above)
 
-# Creating the Interpreter and Agent
-def load_agent(): ...
-
-# Creating the server
-def main_server():
-    agent = load_agent()
-
-    channel = BotServerInputChannel(agent, port=5005)
-    agent.handle_channels([channel], http_port=5005)
-
-main_server()
-```
 
 ## Development
 
