@@ -15,21 +15,23 @@ import SpeechInput from "./SpeechInput";
 const REDRAW_INTERVAL = 10000;
 const GROUP_INTERVAL = 60000;
 
+export type MessageType =
+  | {
+      type: "text",
+      text: string
+    }
+  | { type: "image", image: string }
+  | {
+      type: "button",
+      buttons: Array<{ payload: string, title: string, selected?: boolean }>
+    }
+  | {
+      type: "custom",
+      content: any
+    };
+
 export type ChatMessage = {
-  message:
-    | {
-        type: "text",
-        text: string
-      }
-    | { type: "image", image: string }
-    | {
-        type: "button",
-        buttons: Array<{ payload: string, title: string, selected?: boolean }>
-      }
-    | {
-        type: "custom",
-        content: any
-      },
+  message: MessageType,
   username: string,
   time: number,
   uuid: string
