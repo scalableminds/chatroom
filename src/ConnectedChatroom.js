@@ -2,7 +2,7 @@
 import React, { Component } from "react";
 import type { ElementRef } from "react";
 
-import type { ChatMessage } from "./Chatroom";
+import type { ChatMessage, MessageType } from "./Chatroom";
 import Chatroom from "./Chatroom";
 import { sleep, uuidv4 } from "./utils";
 
@@ -14,35 +14,39 @@ type ConnectedChatroomProps = {
   waitingTimeout: number,
   speechRecognition: ?string,
   messageBlacklist: Array<string>,
-  fetchOptions?: RequestOptions,
+  fetchOptions?: RequestOptions
 };
 type ConnectedChatroomState = {
   messages: Array<ChatMessage>,
   messageQueue: Array<ChatMessage>,
   isOpen: boolean,
-  waitingForBotResponse: boolean,
+  waitingForBotResponse: boolean
 };
 
 type RasaMessage =
   | {| sender_id: string, text: string |}
-  | {| sender_id: string, buttons: Array<{ title: string, payload: string, selected?: boolean }> |}
-  | {| sender_id: string, image: string |}
-  | {| sender_id: string, attachment: string |};
+  | {|
+      sender_id: string,
+      buttons: Array<{ title: string, payload: string, selected?: boolean }>,
+      text?: string
+    |}
+  | {| sender_id: string, image: string, text?: string |}
+  | {| sender_id: string, attachment: string, text?: string |};
 
 export default class ConnectedChatroom extends Component<
   ConnectedChatroomProps,
-  ConnectedChatroomState,
+  ConnectedChatroomState
 > {
   state = {
     messages: [],
     messageQueue: [],
     isOpen: false,
-    waitingForBotResponse: false,
+    waitingForBotResponse: false
   };
 
   static defaultProps = {
     waitingTimeout: 5000,
-    messageBlacklist: ["_restart", "_start", "/restart", "/start"],
+    messageBlacklist: ["_restart", "_start", "/restart", "/start"]
   };
 
   waitingForBotResponseTimer: ?TimeoutID = null;
@@ -51,14 +55,17 @@ export default class ConnectedChatroom extends Component<
 
   componentDidMount() {
     const messageDelay = 800; //delay between message in ms
-    this.messageQueueInterval = window.setInterval(this.queuedMessagesInterval, messageDelay);
+    this.messageQueueInterval = window.setInterval(
+      this.queuedMessagesInterval,
+      messageDelay
+    );
 
     if (this.props.welcomeMessage) {
       const welcomeMessage = {
         message: { type: "text", text: this.props.welcomeMessage },
         time: Date.now(),
         username: "bot",
-        uuid: uuidv4(),
+        uuid: uuidv4()
       };
       this.setState({ messages: [welcomeMessage] });
     }
@@ -82,14 +89,18 @@ export default class ConnectedChatroom extends Component<
       message: { type: "text", text: messageText },
       time: Date.now(),
       username: this.props.userId,
-      uuid: uuidv4(),
+      uuid: uuidv4()
     };
 
     if (!this.props.messageBlacklist.includes(messageText)) {
       this.setState({
         // Reveal all queued bot messages when the user sends a new message
-        messages: [...this.state.messages, ...this.state.messageQueue, messageObj],
-        messageQueue: [],
+        messages: [
+          ...this.state.messages,
+          ...this.state.messageQueue,
+          messageObj
+        ],
+        messageQueue: []
       });
     }
 
@@ -103,18 +114,21 @@ export default class ConnectedChatroom extends Component<
 
     const rasaMessageObj = {
       message: messageObj.message.text,
-      sender: this.props.userId,
+      sender: this.props.userId
     };
 
     const fetchOptions = Object.assign({}, this.props.fetchOptions, {
       method: "POST",
       body: JSON.stringify(rasaMessageObj),
       headers: {
-        "Content-Type": "application/json",
-      },
+        "Content-Type": "application/json"
+      }
     });
 
-    const response = await fetch(`${this.props.host}/webhooks/rest/webhook`, fetchOptions);
+    const response = await fetch(
+      `${this.props.host}/webhooks/rest/webhook`,
+      fetchOptions
+    );
     const messages = await response.json();
 
     this.parseMessages(messages);
@@ -124,56 +138,62 @@ export default class ConnectedChatroom extends Component<
     }
   };
 
+  createNewBotMessage(botMessageObj: MessageType): ChatMessage {
+    return {
+      message: botMessageObj,
+      time: Date.now(),
+      username: "bot",
+      uuid: uuidv4()
+    };
+  }
+
   async parseMessages(RasaMessages: Array<RasaMessage>) {
     const validMessageTypes = ["text", "image", "buttons", "attachment"];
 
     let expandedMessages = [];
 
-    const originalMessages = RasaMessages.filter((message: RasaMessage) =>
-      validMessageTypes.some(type => type in message),
-    ).map((message: RasaMessage) => {
-      if (message.text && message.buttons){
+    RasaMessages.filter((message: RasaMessage) =>
+      validMessageTypes.some(type => type in message)
+    ).forEach((message: RasaMessage) => {
+      let validMessage = false;
+      if (message.text) {
+        validMessage = true;
+        expandedMessages.push(
+          this.createNewBotMessage({ type: "text", text: message.text })
+        );
+      }
 
-        const textMessage = {...message}
-        delete textMessage.buttons;
+      if (message.buttons) {
+        validMessage = true;
+        expandedMessages.push(
+          this.createNewBotMessage({ type: "button", buttons: message.buttons })
+        );
+      }
 
-        const buttonsMessage = {...message}
-        delete buttonsMessage.text;
-
-        expandedMessages.push(textMessage);
-        expandedMessages.push(buttonsMessage);
-
-      } else {expandedMessages.push(message)}
-    })
-
-    const messages = expandedMessages.map((message: RasaMessage) => {
-      let botMessageObj;
-      if (message.text) botMessageObj = { type: "text", text: message.text };
-
-      if (message.buttons) botMessageObj = { type: "button", buttons: message.buttons };
-
-      if (message.image) botMessageObj = { type: "image", image: message.image };
+      if (message.image) {
+        validMessage = true;
+        expandedMessages.push(
+          this.createNewBotMessage({ type: "image", image: message.image })
+        );
+      }
 
       // probably should be handled with special UI elements
-      if (message.attachment) botMessageObj = { type: "text", text: message.attachment };
+      if (message.attachment) {
+        validMessage = true;
+        expandedMessages.push(
+          this.createNewBotMessage({ type: "text", text: message.attachment })
+        );
+      }
 
-      if (botMessageObj == null) throw Error("Could not parse message from Bot or empty message");
-
-      const messageObj = {
-        message: botMessageObj,
-        time: Date.now(),
-        username: "bot",
-        uuid: uuidv4(),
-      };
-
-      return messageObj;
+      if (validMessage === false)
+        throw Error("Could not parse message from Bot or empty message");
     });
 
     // Bot messages should be displayed in a queued manner. Not all at once
-    const messageQueue = [...this.state.messageQueue, ...messages];
+    const messageQueue = [...this.state.messageQueue, ...expandedMessages];
     this.setState({
       messageQueue,
-      waitingForBotResponse: messageQueue.length > 0,
+      waitingForBotResponse: messageQueue.length > 0
     });
   }
 
@@ -187,7 +207,7 @@ export default class ConnectedChatroom extends Component<
       this.setState({
         messages: [...messages, message],
         messageQueue,
-        waitingForBotResponse,
+        waitingForBotResponse
       });
     }
   };
@@ -217,7 +237,7 @@ export default class ConnectedChatroom extends Component<
       .filter(
         message =>
           message.message.type !== "text" ||
-          !this.props.messageBlacklist.includes(message.message.text),
+          !this.props.messageBlacklist.includes(message.message.text)
       )
       .sort((a, b) => a.time - b.time);
 
