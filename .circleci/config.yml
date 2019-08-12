@@ -87,7 +87,7 @@ jobs:
 
 workflows:
   version: 2
-  build-deploy:
+  circleci_build:
     jobs:
       - build:
           filters:
