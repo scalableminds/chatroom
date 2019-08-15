@@ -25,6 +25,7 @@ type DebuggerViewProps = {
   title: string,
   waitingTimeout?: number,
   speechRecognition: ?string,
+  disableInputOnButton: ?boolean,
   messageBlacklist?: Array<string>,
   fetchOptions?: RequestOptions,
   rasaToken?: string,
