@@ -46,30 +46,6 @@ const speak = (message, voiceLang) => {
   synth.speak(toSpeak);
 }
 
-/* 
-  [
-  "de-DE",
-  "en-US",
-  "en-GB",
-  "en-GB",
-  "es-ES",
-  "es-US",
-  "fr-FR",
-  "hi-IN",
-  "id-ID",
-  "it-IT",
-  "ja-JP",
-  "ko-KR",
-  "nl-NL",
-  "pl-PL",
-  "pt-BR",
-  "ru-RU",
-  "zh-CN",
-  "zh-HK",
-  "zh-TW"
-]
-*/
-
 const Message = ({ chat, onButtonClick, voiceLang}: MessageProps) => {
   const message = chat.message;
   const isBot = chat.username === "bot";
