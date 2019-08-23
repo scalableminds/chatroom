@@ -37,7 +37,7 @@ const speak = (message, voiceLang) => {
   let voices = [];
   voices = synth.getVoices();
   var toSpeak = new SpeechSynthesisUtterance(message);
-  var selectedVoiceName = voiceLang;
+  var selectedVoiceName = voiceLang ? voiceLang : 'en-US';
   voices.forEach((voice)=>{
       if(voice.lang === selectedVoiceName){
           toSpeak.voice = voice;
