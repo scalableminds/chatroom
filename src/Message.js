@@ -1,5 +1,5 @@
 // @flow
-import React from "react";
+import React, { useEffect } from "react";
 import Markdown from "react-markdown";
 import breaks from "remark-breaks";
 import { formatDistance } from "date-fns";
@@ -28,11 +28,58 @@ export const MessageTime = ({ time, isBot }: MessageTimeProps) => {
 
 type MessageProps = {
   chat: ChatMessage,
-  onButtonClick?: (title: string, payload: string) => void
+  onButtonClick?: (title: string, payload: string) => void,
+  voiceLang: ?string
 };
-const Message = ({ chat, onButtonClick }: MessageProps) => {
+
+const speak = (message, voiceLang) => {
+  let synth = window.speechSynthesis;
+  let voices = [];
+  voices = synth.getVoices();
+  var toSpeak = new SpeechSynthesisUtterance(message);
+  var selectedVoiceName = voiceLang;
+  voices.forEach((voice)=>{
+      if(voice.lang === selectedVoiceName){
+          toSpeak.voice = voice;
+      }
+  });
+  synth.speak(toSpeak);
+}
+
+/* 
+  [
+  "de-DE",
+  "en-US",
+  "en-GB",
+  "en-GB",
+  "es-ES",
+  "es-US",
+  "fr-FR",
+  "hi-IN",
+  "id-ID",
+  "it-IT",
+  "ja-JP",
+  "ko-KR",
+  "nl-NL",
+  "pl-PL",
+  "pt-BR",
+  "ru-RU",
+  "zh-CN",
+  "zh-HK",
+  "zh-TW"
+]
+*/
+
+const Message = ({ chat, onButtonClick, voiceLang}: MessageProps) => {
   const message = chat.message;
   const isBot = chat.username === "bot";
+
+  useEffect(() => {
+    if (isBot && message.text !== 'Olá!') {
+      speak(message.text,voiceLang);
+    }
+  }, [])
+
   switch (message.type) {
     case "button":
       return (

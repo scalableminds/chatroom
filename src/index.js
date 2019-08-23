@@ -23,6 +23,7 @@ type ChatroomOptions = {
   waitingTimeout?: number,
   fetchOptions?: RequestOptions,
   rasaToken?: string,
+  voiceLang?: string
 };
 
 window.Chatroom = function(options: ChatroomOptions) {
@@ -44,6 +45,7 @@ window.Chatroom = function(options: ChatroomOptions) {
       welcomeMessage={options.welcomeMessage}
       waitingTimeout={options.waitingTimeout}
       fetchOptions={options.fetchOptions}
+      voiceLang={options.voiceLang}
     />,
     options.container,
   );
@@ -197,6 +199,7 @@ window.DebugChatroom = function(options: ChatroomOptions) {
       welcomeMessage={options.welcomeMessage}
       waitingTimeout={options.waitingTimeout}
       fetchOptions={options.fetchOptions}
+      voiceLang={options.voiceLang}
     />,
     options.container,
   );

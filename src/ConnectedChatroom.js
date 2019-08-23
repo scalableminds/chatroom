@@ -14,7 +14,8 @@ type ConnectedChatroomProps = {
   waitingTimeout: number,
   speechRecognition: ?string,
   messageBlacklist: Array<string>,
-  fetchOptions?: RequestOptions
+  fetchOptions?: RequestOptions,
+  voiceLang: ?string
 };
 type ConnectedChatroomState = {
   messages: Array<ChatMessage>,
@@ -60,12 +61,14 @@ export default class ConnectedChatroom extends Component<
       messageDelay
     );
 
+    console.log(this.props)
+
     if (this.props.welcomeMessage) {
       const welcomeMessage = {
         message: { type: "text", text: this.props.welcomeMessage },
         time: Date.now(),
         username: "bot",
-        uuid: uuidv4()
+        uuid: uuidv4(),
       };
       this.setState({ messages: [welcomeMessage] });
     }
@@ -89,7 +92,7 @@ export default class ConnectedChatroom extends Component<
       message: { type: "text", text: messageText },
       time: Date.now(),
       username: this.props.userId,
-      uuid: uuidv4()
+      uuid: uuidv4(), 
     };
 
     if (!this.props.messageBlacklist.includes(messageText)) {
@@ -252,6 +255,7 @@ export default class ConnectedChatroom extends Component<
         onButtonClick={this.handleButtonClick}
         onSendMessage={this.sendMessage}
         ref={this.chatroomRef}
+        voiceLang={this.props.voiceLang}
       />
     );
   }
