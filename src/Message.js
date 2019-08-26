@@ -32,27 +32,26 @@ type MessageProps = {
   voiceLang: ?string
 };
 
+const supportSpeechSynthesis = () => "SpeechSynthesisUtterance" in window;
+
 const speak = (message, voiceLang) => {
   let synth = window.speechSynthesis;
   let voices = [];
   voices = synth.getVoices();
   var toSpeak = new SpeechSynthesisUtterance(message);
-  var selectedVoiceName = voiceLang ? voiceLang : 'en-US';
-  voices.forEach((voice)=>{
-      if(voice.lang === selectedVoiceName){
-          toSpeak.voice = voice;
-      }
-  });
+  var selectedVoiceName = voiceLang;
+  toSpeak.voice = voices.find((voice) => voice.lang === selectedVoiceName);
   synth.speak(toSpeak);
 }
 
 const Message = ({ chat, onButtonClick, voiceLang}: MessageProps) => {
   const message = chat.message;
   const isBot = chat.username === "bot";
+  const shouldSpeak = isBot && voiceLang && supportSpeechSynthesis();
 
   useEffect(() => {
-    if (isBot && message.text !== 'Olá!') {
-      speak(message.text,voiceLang);
+    if (shouldSpeak) {
+      speak(message.text, voiceLang);
     }
   }, [])
 

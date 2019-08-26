@@ -61,8 +61,6 @@ export default class ConnectedChatroom extends Component<
       messageDelay
     );
 
-    console.log(this.props)
-
     if (this.props.welcomeMessage) {
       const welcomeMessage = {
         message: { type: "text", text: this.props.welcomeMessage },
