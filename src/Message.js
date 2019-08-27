@@ -35,12 +35,11 @@ type MessageProps = {
 const supportSpeechSynthesis = () => "SpeechSynthesisUtterance" in window;
 
 const speak = (message, voiceLang) => {
-  let synth = window.speechSynthesis;
+  const synth = window.speechSynthesis;
   let voices = [];
   voices = synth.getVoices();
-  var toSpeak = new SpeechSynthesisUtterance(message);
-  var selectedVoiceName = voiceLang;
-  toSpeak.voice = voices.find((voice) => voice.lang === selectedVoiceName);
+  const toSpeak = new SpeechSynthesisUtterance(message);
+  toSpeak.voice = voices.find((voice) => voice.lang === voiceLang);
   synth.speak(toSpeak);
 }
 
