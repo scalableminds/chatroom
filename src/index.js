@@ -2,7 +2,7 @@
 import type { ChatMessage } from "./Chatroom";
 
 import "unfetch/polyfill";
-import "babel-polyfill";
+import "@babel/polyfill";
 import React from "react";
 import ReactDOM from "react-dom";
 
@@ -23,6 +23,7 @@ type ChatroomOptions = {
   waitingTimeout?: number,
   fetchOptions?: RequestOptions,
   rasaToken?: string,
+  voiceLang?: string
 };
 
 window.Chatroom = function(options: ChatroomOptions) {
@@ -44,8 +45,9 @@ window.Chatroom = function(options: ChatroomOptions) {
       welcomeMessage={options.welcomeMessage}
       waitingTimeout={options.waitingTimeout}
       fetchOptions={options.fetchOptions}
+      voiceLang={options.voiceLang}
     />,
-    options.container,
+    options.container
   );
 
   this.openChat = () => {
@@ -59,32 +61,40 @@ window.Chatroom = function(options: ChatroomOptions) {
 
 type DemoChatroomOptions = {
   title: string,
-  container: HTMLElement,
+  container: HTMLElement
 };
 
 window.DemoChatroom = function(options: DemoChatroomOptions) {
   this.demoIsPlaying = false;
 
-  this.render = (messages: Array<ChatMessage>, showWaitingBubble: boolean = false) => {
+  this.render = (
+    messages: Array<ChatMessage>,
+    showWaitingBubble: boolean = false
+  ) => {
     this.ref = ReactDOM.render(
       <Chatroom
         messages={messages}
         waitingForBotResponse={showWaitingBubble}
         speechRecognition={null}
+        voiceLang={null}
         isOpen={true}
         title={options.title || "Chat"}
         onButtonClick={noop}
         onToggleChat={noop}
         onSendMessage={noop}
       />,
-      options.container,
+      options.container
     );
   };
 
   const sleepEffect = (time: number) => ({ type: "SLEEP", time });
 
   // Works like redux-saga
-  function* demoSaga(_messages: Array<ChatMessage>, delay: number = 1000, keyDelay: number = 100) {
+  function* demoSaga(
+    _messages: Array<ChatMessage>,
+    delay: number = 1000,
+    keyDelay: number = 100
+  ) {
     if (this.demoIsPlaying) return;
     this.demoIsPlaying = true;
 
@@ -94,7 +104,7 @@ window.DemoChatroom = function(options: DemoChatroomOptions) {
       message: m.message,
       username: m.username || "user",
       time: Date.now() + delay * i,
-      uuid: uuidv4(),
+      uuid: uuidv4()
     }));
 
     for (let i = -1; i < messages.length; i++) {
@@ -105,10 +115,14 @@ window.DemoChatroom = function(options: DemoChatroomOptions) {
         const currentMessageContent = currentMessage.message;
 
         // Show waiting when next message is a bot message
-        const showWaitingBubble = i + 1 < messages.length && messages[i + 1].username === "bot";
+        const showWaitingBubble =
+          i + 1 < messages.length && messages[i + 1].username === "bot";
 
         // Show typing animation if current message is a user message
-        if (currentMessage.username !== "bot" && currentMessageContent.type === "text") {
+        if (
+          currentMessage.username !== "bot" &&
+          currentMessageContent.type === "text"
+        ) {
           const messageText = currentMessageContent.text;
           this.ref.getInputRef().focus();
           for (let j = 0; j < messageText.length && this.demoIsPlaying; j++) {
@@ -132,10 +146,10 @@ window.DemoChatroom = function(options: DemoChatroomOptions) {
                 type: "button",
                 buttons: currentMessageContent.buttons.map(b => ({
                   title: b.title,
-                  payload: b.payload,
-                })),
-              },
-            }),
+                  payload: b.payload
+                }))
+              }
+            })
           );
           yield sleepEffect(delay);
         }
@@ -150,7 +164,7 @@ window.DemoChatroom = function(options: DemoChatroomOptions) {
   this.demo = async (
     messages: Array<ChatMessage>,
     delay: number = 1000,
-    keyDelay: number = 100,
+    keyDelay: number = 100
   ) => {
     const saga = demoSaga.call(this, messages, delay, keyDelay);
     let currentEffect = saga.next();
@@ -197,11 +211,13 @@ window.DebugChatroom = function(options: ChatroomOptions) {
       welcomeMessage={options.welcomeMessage}
       waitingTimeout={options.waitingTimeout}
       fetchOptions={options.fetchOptions}
+      voiceLang={options.voiceLang}
     />,
-    options.container,
+    options.container
   );
 
-  if (isNewSession && options.startMessage != null) {
-    this.ref.getChatroom().sendMessage(options.startMessage);
+  const { startMessage } = options;
+  if (isNewSession && startMessage != null) {
+    this.ref.getChatroom().sendMessage(startMessage);
   }
 };

@@ -16,6 +16,7 @@
 * Generates a unique session id and keeps it in `sessionStorage`
 * Queues consecutive bot messages for better readability
 * Speech input (only in Chrome for now)
+* Text to Speech (only in Chrome for now)
 * Demo mode included (ideal for scripted screencasts)
 * Hosted on S3 for easy use
 * Simple setup. Works with Rasa's [REST channel](https://rasa.com/docs/rasa/user-guide/connectors/your-own-website/#rest-channels)
@@ -37,7 +38,8 @@
       title: "Chat with Mike",
       container: document.querySelector(".chat-container"),
       welcomeMessage: "Hi, I am Mike. How may I help you?",
-      speechRecognition: "en-US"
+      speechRecognition: "en-US",
+      voiceLang: "en-US"
     });
     chatroom.openChat();
   </script>

@@ -1,5 +1,5 @@
 // @flow
-import React from "react";
+import React, { useEffect } from "react";
 import Markdown from "react-markdown";
 import breaks from "remark-breaks";
 import { formatDistance } from "date-fns";
@@ -28,11 +28,36 @@ export const MessageTime = ({ time, isBot }: MessageTimeProps) => {
 
 type MessageProps = {
   chat: ChatMessage,
-  onButtonClick?: (title: string, payload: string) => void
+  onButtonClick?: (title: string, payload: string) => void,
+  voiceLang?: ?string
 };
-const Message = ({ chat, onButtonClick }: MessageProps) => {
+
+const supportSpeechSynthesis = () => "SpeechSynthesisUtterance" in window;
+
+const speak = (message: string, voiceLang: string) => {
+  const synth = window.speechSynthesis;
+  let voices = [];
+  voices = synth.getVoices();
+  const toSpeak = new SpeechSynthesisUtterance(message);
+  toSpeak.voice = voices.find(voice => voice.lang === voiceLang);
+  synth.speak(toSpeak);
+};
+
+const Message = ({ chat, onButtonClick, voiceLang = null }: MessageProps) => {
   const message = chat.message;
   const isBot = chat.username === "bot";
+
+  useEffect(() => {
+    if (
+      isBot &&
+      voiceLang != null &&
+      message.type === "text" &&
+      supportSpeechSynthesis()
+    ) {
+      speak(message.text, voiceLang);
+    }
+  }, []);
+
   switch (message.type) {
     case "button":
       return (

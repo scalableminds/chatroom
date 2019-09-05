@@ -1,5 +1,5 @@
 // @flow
-import "babel-polyfill";
+import "@babel/polyfill";
 import React, { Component, Fragment } from "react";
 import ReactDOM from "react-dom";
 import isEqual from "lodash.isequal";
@@ -34,7 +34,8 @@ export type ChatMessage = {
   message: MessageType,
   username: string,
   time: number,
-  uuid: string
+  uuid: string,
+  voiceLang?: string
 };
 
 const WaitingBubble = () => (
@@ -43,14 +44,19 @@ const WaitingBubble = () => (
   </li>
 );
 
-const MessageGroup = ({ messages, onButtonClick }) => {
+const MessageGroup = ({ messages, onButtonClick, voiceLang }) => {
   const isBot = messages[0].username === "bot";
   const isButtonGroup =
     messages.length === 1 && messages[0].message.type === "button";
   return (
     <Fragment>
       {messages.map((message, i) => (
-        <Message chat={message} key={i} onButtonClick={onButtonClick} />
+        <Message
+          chat={message}
+          key={i}
+          onButtonClick={onButtonClick}
+          voiceLang={voiceLang}
+        />
       ))}
       {!isButtonGroup ? (
         <MessageTime time={messages[messages.length - 1].time} isBot={isBot} />
@@ -67,7 +73,8 @@ type ChatroomProps = {
   speechRecognition: ?string,
   onButtonClick: (message: string, payload: string) => *,
   onSendMessage: (message: string) => *,
-  onToggleChat: () => *
+  onToggleChat: () => *,
+  voiceLang: ?string
 };
 
 type ChatroomState = {
@@ -79,8 +86,8 @@ export default class Chatroom extends Component<ChatroomProps, ChatroomState> {
     inputValue: ""
   };
   lastRendered: number = 0;
-  chatsRef = React.createRef();
-  inputRef = React.createRef();
+  chatsRef = React.createRef<HTMLDivElement>();
+  inputRef = React.createRef<HTMLInputElement>();
 
   componentDidMount() {
     this.scrollToBot();
@@ -188,7 +195,7 @@ export default class Chatroom extends Component<ChatroomProps, ChatroomState> {
   };
 
   render() {
-    const { messages, isOpen, waitingForBotResponse } = this.props;
+    const { messages, isOpen, waitingForBotResponse, voiceLang } = this.props;
     const messageGroups = this.groupMessages(messages);
     const isClickable = i =>
       !waitingForBotResponse && i == messageGroups.length - 1;
@@ -204,6 +211,7 @@ export default class Chatroom extends Component<ChatroomProps, ChatroomState> {
               onButtonClick={
                 isClickable(i) ? this.handleButtonClick : undefined
               }
+              voiceLang={voiceLang}
             />
           ))}
           {waitingForBotResponse ? <WaitingBubble /> : null}

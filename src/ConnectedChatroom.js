@@ -14,7 +14,8 @@ type ConnectedChatroomProps = {
   waitingTimeout: number,
   speechRecognition: ?string,
   messageBlacklist: Array<string>,
-  fetchOptions?: RequestOptions
+  fetchOptions?: RequestOptions,
+  voiceLang: ?string
 };
 type ConnectedChatroomState = {
   messages: Array<ChatMessage>,
@@ -51,7 +52,7 @@ export default class ConnectedChatroom extends Component<
 
   waitingForBotResponseTimer: ?TimeoutID = null;
   messageQueueInterval: ?IntervalID = null;
-  chatroomRef = React.createRef();
+  chatroomRef = React.createRef<Chatroom>();
 
   componentDidMount() {
     const messageDelay = 800; //delay between message in ms
@@ -252,6 +253,7 @@ export default class ConnectedChatroom extends Component<
         onButtonClick={this.handleButtonClick}
         onSendMessage={this.sendMessage}
         ref={this.chatroomRef}
+        voiceLang={this.props.voiceLang}
       />
     );
   }

@@ -1,8 +1,18 @@
 {
-  "presets": [["env", {
-      "targets": {
-        "browsers": ["last 2 versions", "safari >= 7", "ie >= 11"]
+  "presets": [
+    [
+      "@babel/preset-env",
+      {
+        "targets": {
+          "browsers": ["last 2 versions", "safari >= 7", "ie >= 11"]
+        }
       }
-    }], "react"],
-  "plugins": ["transform-flow-strip-types", "syntax-class-properties", "transform-class-properties"]
+    ],
+    "@babel/preset-react"
+  ],
+  "plugins": [
+    "@babel/plugin-transform-flow-strip-types",
+    "@babel/plugin-syntax-class-properties",
+    "@babel/plugin-proposal-class-properties"
+  ]
 }

@@ -15,7 +15,7 @@ type TrackerState = {
   paused: boolean,
   sender_id: string,
   latest_message: Object,
-  events: Array<Object>,
+  events: Array<Object>
 };
 
 type DebuggerViewProps = {
@@ -25,19 +25,20 @@ type DebuggerViewProps = {
   title: string,
   waitingTimeout?: number,
   speechRecognition: ?string,
+  voiceLang: ?string,
   messageBlacklist?: Array<string>,
   fetchOptions?: RequestOptions,
-  rasaToken?: string,
+  rasaToken?: string
 };
 type DebuggerViewState = {
-  tracker: ?TrackerState,
+  tracker: ?TrackerState
 };
 class DebuggerView extends Component<DebuggerViewProps, DebuggerViewState> {
   state = {
-    tracker: null,
+    tracker: null
   };
   intervalHandle = 0;
-  chatroomRef = React.createRef();
+  chatroomRef = React.createRef<ConnectedChatroom>();
 
   componentDidMount() {
     this.intervalHandle = window.setInterval(this.updateTrackerView, 1000);
@@ -50,7 +51,8 @@ class DebuggerView extends Component<DebuggerViewProps, DebuggerViewState> {
   }
 
   getChatroom() {
-    if (this.chatroomRef.current == null) throw new TypeError("chatroomRef is null.");
+    if (this.chatroomRef.current == null)
+      throw new TypeError("chatroomRef is null.");
     return this.chatroomRef.current;
   }
 
@@ -58,12 +60,12 @@ class DebuggerView extends Component<DebuggerViewProps, DebuggerViewState> {
     const { host, userId, rasaToken } = this.props;
 
     if (rasaToken) {
-      return fetch(`${host}/conversations/${userId}/tracker?token=${rasaToken}`).then(res =>
-        res.json(),
-      );
+      return fetch(
+        `${host}/conversations/${userId}/tracker?token=${rasaToken}`
+      ).then(res => res.json());
     } else {
       throw Error(
-        'Rasa Auth Token is missing. Start your bot with the REST API enabled and specify an auth token. E.g. --enable_api --cors "*" --auth_token abc',
+        'Rasa Auth Token is missing. Start your bot with the REST API enabled and specify an auth token. E.g. --enable_api --cors "*" --auth_token abc'
       );
     }
   }
@@ -77,7 +79,7 @@ class DebuggerView extends Component<DebuggerViewProps, DebuggerViewState> {
     const { tracker } = this.state;
     const preStyle = {
       fontFamily: "Monaco, Consolas, Courier, monospace",
-      fontSize: "10pt",
+      fontSize: "10pt"
     };
 
     return (
@@ -95,19 +97,28 @@ class DebuggerView extends Component<DebuggerViewProps, DebuggerViewState> {
             {tracker != null ? (
               <div>
                 <h3>Slots</h3>
-                <pre style={preStyle}>{JSON.stringify(tracker.slots, null, 2)}</pre>
+                <pre style={preStyle}>
+                  {JSON.stringify(tracker.slots, null, 2)}
+                </pre>
                 <h3>Latest Message</h3>
                 <pre style={preStyle}>
-                  {JSON.stringify(without(tracker.latest_message, "intent_ranking"), null, 2)}
+                  {JSON.stringify(
+                    without(tracker.latest_message, "intent_ranking"),
+                    null,
+                    2
+                  )}
                 </pre>
                 <h3>Events</h3>
-                <pre style={preStyle}>{JSON.stringify(tracker.events, null, 2)}</pre>
+                <pre style={preStyle}>
+                  {JSON.stringify(tracker.events, null, 2)}
+                </pre>
               </div>
             ) : null}
           </div>
         ) : (
           <div style={{ flex: 2, overflowY: "auto" }}>
-            Either Rasa REST API is not enabled (e.g. --enable_api --cors "*") or{" "}
+            Either Rasa REST API is not enabled (e.g. --enable_api --cors "*")
+            or{" "}
             <a href="https://rasa.com/docs/rasa/api/http-api/">
               Token is missing (--auth_token abc)
             </a>
@@ -121,6 +132,7 @@ class DebuggerView extends Component<DebuggerViewProps, DebuggerViewState> {
             host={this.props.host}
             title={"Chat"}
             speechRecognition={this.props.speechRecognition}
+            voiceLang={this.props.voiceLang}
             welcomeMessage={this.props.welcomeMessage}
             fetchOptions={this.props.fetchOptions}
           />
