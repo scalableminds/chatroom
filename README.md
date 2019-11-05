@@ -6,8 +6,6 @@
 
 [Watch a demo of our Chatroom in action](https://npm-scalableminds.s3.eu-central-1.amazonaws.com/@scalableminds/chatroom@master/demo.html)
 
-[Try a live chatbot](https://scalableminds.com/)
-
 ## Features
 
 * React-based component
