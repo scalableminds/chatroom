@@ -118,13 +118,13 @@ export default class ConnectedChatroom extends Component<
       sender: this.props.userId
     };
 
-    const fetchOptions = Object.assign({}, this.props.fetchOptions, {
+    const fetchOptions = Object.assign({}, {
       method: "POST",
       body: JSON.stringify(rasaMessageObj),
       headers: {
         "Content-Type": "application/json"
       }
-    });
+    }, this.props.fetchOptions);
 
     const response = await fetch(
       `${this.props.host}/webhooks/rest/webhook`,
