@@ -54,8 +54,10 @@ const speak = async (message: string, voiceLang: string) => {
   const desiredVoice = voices.find(voice => voice.lang === voiceLang);
   if (desiredVoice) {
     toSpeak.voice = desiredVoice;
-    synth.speak(toSpeak);
+    return synth.speak(toSpeak);
   }
+  toSpeak.voice = voices[0];
+  return synth.speak(toSpeak);
 };
 
 const Message = ({ chat, onButtonClick, voiceLang = null }: MessageProps) => {
