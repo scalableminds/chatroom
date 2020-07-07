@@ -24,7 +24,7 @@ type ConnectedChatroomState = {
   messageQueue: Array<ChatMessage>,
   isOpen: boolean,
   waitingForBotResponse: boolean,
-  currentbot: string,
+  currenthost: string,
   currenthandoff: string
 };
 
