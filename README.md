@@ -1,10 +1,30 @@
 > This fork is under development to allow for switching the host (i.e. bot). 
-> To see it in action, clone this repo and run 
+> To try it out, clone this repo and run 
 ```bash
 yarn install
 yarn build
 yarn serve
 ```
+> To see it in action you'll need two rasa bots that sends the message `/handoff` 
+> in response to some intent, either as a response or as part of an action. You should 
+> also define a response to the intent `/handoff` for when the bot is switched to (vs. from)
+> Minimal example:
+```yaml
+intents:
+- human_handoff:
+    triggers: utter_handoff
+- handoff:
+    triggers: utter_whoami
+...
+responses:
+  utter_handoff: 
+  - text: /handoff
+  utter_whoami:
+  - text: Hi! I'm your <Helpdesk/Financial/etc> Assistant!
+```
+> Chatroom will read the bot message `/handoff` and switch from listening on the `host` to `handoffhost`, 
+> or vice-versa if you already did it once.
+> 
 > Run two rasa bots locally with `rasa run --port <port> --enable-api --cors "*"`.
 > Run one bot at port 5005 and another at port 5006 (or change the ports below)
 > 
@@ -20,7 +40,7 @@ yarn serve
   <script type="text/javascript">
     var chatroom = new window.Chatroom({
       host: "http://localhost:5005",
-      otherhost: "http://localhost:5006",
+      handoffhost: "http://localhost:5006",
       title: "Handoff Assistant Demo",
       container: document.querySelector(".chat-container"),
       welcomeMessage: "Hi, how may I help you?"
@@ -34,10 +54,7 @@ yarn serve
 
 > Open `chatroomhandoff.html` in your browser.
 > 
-> To switch bots, send either `/handoff` or `/handback`. 
-> 
-> Unless these intents are defined and included in the stories of both your bots, you'll get fallback/out of scope
-> responses upon switching, but after that you should be able to talk to the bot normally.
+> To switch bots, send `/handoff`.
 
 
 # React-based Chatroom Component for Rasa Stack
@@ -75,7 +92,6 @@ yarn serve
   <script type="text/javascript">
     var chatroom = new window.Chatroom({
       host: "http://localhost:5005",
-      handoffhost: "http://localhost:5006"
       title: "Chat with Mike",
       container: document.querySelector(".chat-container"),
       welcomeMessage: "Hi, I am Mike. How may I help you?",

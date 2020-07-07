@@ -15,7 +15,7 @@ type ConnectedChatroomProps = {
   waitingTimeout: number,
   speechRecognition: ?string,
   messageBlacklist: Array<string>,
-  messageSwitchlist: Array<string>,
+  messageSwitch: string,
   fetchOptions?: RequestOptions,
   voiceLang: ?string
 };
@@ -53,8 +53,8 @@ export default class ConnectedChatroom extends Component<
 
   static defaultProps = {
     waitingTimeout: 5000,
-    messageBlacklist: ["_restart", "_start", "/restart", "/start"],
-    messageSwitchlist: ["/handoff", "/handback"]
+    messageBlacklist: ["_restart", "_start", "/restart", "/start", "/handoff"],
+    messageSwitch: "/handoff"
   };
 
   waitingForBotResponseTimer: ?TimeoutID = null;
@@ -99,15 +99,6 @@ export default class ConnectedChatroom extends Component<
       username: this.props.userId,
       uuid: uuidv4()
     };
-
-    if (this.props.messageSwitchlist.includes(messageText)) {
-      const otherhost = `${this.state.currenthost}`;
-      this.setState({
-        currenthost: `${this.state.currenthandoffhost}`,
-        currenthandoffhost: otherhost
-      });
-      console.log(`switching to ${otherhost}`)
-    }
 
     if (!this.props.messageBlacklist.includes(messageText)) {
       this.setState({
@@ -175,6 +166,16 @@ export default class ConnectedChatroom extends Component<
       let validMessage = false;
       if (message.text) {
         validMessage = true;
+        if (this.props.messageSwitch === message.text) {
+          const otherhost = `${this.state.currenthost}`;
+          this.setState({
+            currenthost: `${this.state.currenthandoffhost}`,
+            currenthandoffhost: otherhost
+          });
+          console.log(`switching to ${otherhost}`)
+          this.sendMessage("/handoff")
+          return
+        }
         expandedMessages.push(
           this.createNewBotMessage({ type: "text", text: message.text })
         );
