@@ -9,11 +9,13 @@ import { sleep, uuidv4 } from "./utils";
 type ConnectedChatroomProps = {
   userId: string,
   host: string,
+  handoffhost: string,
   welcomeMessage: ?string,
   title: string,
   waitingTimeout: number,
   speechRecognition: ?string,
   messageBlacklist: Array<string>,
+  messageSwitchlist: Array<string>,
   fetchOptions?: RequestOptions,
   voiceLang: ?string
 };
@@ -21,7 +23,9 @@ type ConnectedChatroomState = {
   messages: Array<ChatMessage>,
   messageQueue: Array<ChatMessage>,
   isOpen: boolean,
-  waitingForBotResponse: boolean
+  waitingForBotResponse: boolean,
+  currentbot: string,
+  currenthandoff: string
 };
 
 type RasaMessage =
@@ -42,12 +46,15 @@ export default class ConnectedChatroom extends Component<
     messages: [],
     messageQueue: [],
     isOpen: false,
-    waitingForBotResponse: false
+    waitingForBotResponse: false,
+    currenthost: `${this.props.host}`,
+    currenthandoffhost: `${this.props.handoffhost}`
   };
 
   static defaultProps = {
     waitingTimeout: 5000,
-    messageBlacklist: ["_restart", "_start", "/restart", "/start"]
+    messageBlacklist: ["_restart", "_start", "/restart", "/start"],
+    messageSwitchlist: ["/handoff", "/handback"]
   };
 
   waitingForBotResponseTimer: ?TimeoutID = null;
@@ -93,6 +100,15 @@ export default class ConnectedChatroom extends Component<
       uuid: uuidv4()
     };
 
+    if (this.props.messageSwitchlist.includes(messageText)) {
+      const otherhost = `${this.state.currenthost}`;
+      this.setState({
+        currenthost: `${this.state.currenthandoffhost}`,
+        currenthandoffhost: otherhost
+      });
+      console.log(`switching to ${otherhost}`)
+    }
+
     if (!this.props.messageBlacklist.includes(messageText)) {
       this.setState({
         // Reveal all queued bot messages when the user sends a new message
@@ -127,7 +143,7 @@ export default class ConnectedChatroom extends Component<
     }, this.props.fetchOptions);
 
     const response = await fetch(
-      `${this.props.host}/webhooks/rest/webhook`,
+      `${this.state.currenthost}/webhooks/rest/webhook`,
       fetchOptions
     );
     const messages = await response.json();
@@ -254,6 +270,8 @@ export default class ConnectedChatroom extends Component<
         onSendMessage={this.sendMessage}
         ref={this.chatroomRef}
         voiceLang={this.props.voiceLang}
+        host={this.state.currenthost}
+        handoffhost={this.state.currenthandoffhost}
       />
     );
   }

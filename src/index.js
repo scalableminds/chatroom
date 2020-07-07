@@ -15,6 +15,7 @@ const USERID_STORAGE_KEY = "simple-chatroom-cid";
 
 type ChatroomOptions = {
   host: string,
+  handoffhost: string,
   title?: string,
   welcomeMessage?: string,
   speechRecognition?: string,
@@ -40,6 +41,7 @@ window.Chatroom = function(options: ChatroomOptions) {
     <ConnectedChatroom
       userId={sessionUserId}
       host={options.host}
+      handoffhost={options.handoffhost}
       title={options.title || "Chat"}
       speechRecognition={options.speechRecognition}
       welcomeMessage={options.welcomeMessage}
@@ -206,6 +208,7 @@ window.DebugChatroom = function(options: ChatroomOptions) {
       rasaToken={options.rasaToken}
       userId={sessionUserId}
       host={options.host}
+      handoffhost={options.handoffhost}
       title={options.title || "Chat"}
       speechRecognition={options.speechRecognition}
       welcomeMessage={options.welcomeMessage}

@@ -21,6 +21,7 @@ type TrackerState = {
 type DebuggerViewProps = {
   userId: string,
   host: string,
+  handoffhost: string,
   welcomeMessage: ?string,
   title: string,
   waitingTimeout?: number,

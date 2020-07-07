@@ -12,12 +12,13 @@
     <script src="./dist/Chatroom.js"></script>
     <script type="text/javascript">
 window.chatroom = new window.Chatroom({
-  title: "Chat with a bot",
+  title: "helpdesk",
   container: document.querySelector(".chat-container"),
-  welcomeMessage: "Nice to meet you.",
+  welcomeMessage: "Hallo! (index.html)",
   host: "http://localhost:5005",
-  speechRecognition: "en-US",
-  voiceLang: "en-US"
+  handoffhost: "http://localhost:5006"
+  // speechRecognition: "en-US",
+  // voiceLang: "en-US"
 });
 window.chatroom.openChat();
 </script>
