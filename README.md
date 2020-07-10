@@ -40,7 +40,6 @@ responses:
   <script type="text/javascript">
     var chatroom = new window.Chatroom({
       host: "http://localhost:5005",
-      handoffhost: "http://localhost:5006",
       title: "Handoff Assistant Demo",
       container: document.querySelector(".chat-container"),
       welcomeMessage: "Hi, how may I help you?"
