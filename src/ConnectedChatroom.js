@@ -15,7 +15,6 @@ type ConnectedChatroomProps = {
   speechRecognition: ?string,
   messageBlacklist: Array<string>,
   handoffIntent: string,
-  handoffTriggerIntent: string,
   fetchOptions?: RequestOptions,
   voiceLang: ?string
 };
@@ -55,11 +54,10 @@ export default class ConnectedChatroom extends Component<
   static defaultProps = {
     waitingTimeout: 5000,
     messageBlacklist: ["_restart", "_start", "/restart", "/start"],
-    handoffIntent: "handoff",
-    handoffTriggerIntent: "trigger_handoff"
+    handoffIntent: "handoff"
   };
 
-  handoffpayload = `\\/((${this.props.handoffIntent})|(${this.props.handoffTriggerIntent}))\\b.*`;
+  handoffpayload = `\\/(${this.props.handoffIntent})\\b.*`;
   handoffregex = new RegExp( this.handoffpayload );
   waitingForBotResponseTimer: ?TimeoutID = null;
   messageQueueInterval: ?IntervalID = null;

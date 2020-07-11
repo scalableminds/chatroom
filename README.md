@@ -1,60 +1,5 @@
-> This fork is under development to allow for switching the host (i.e. bot). 
-> To try it out, clone this repo and run 
-```bash
-yarn install
-yarn build
-yarn serve
-```
-> To see it in action you'll need two rasa bots that sends the message `/handoff` 
-> in response to some intent, either as a response or as part of an action. You should 
-> also define a response to the intent `/handoff` for when the bot is switched to (vs. from)
-> Minimal example:
-```yaml
-intents:
-- human_handoff:
-    triggers: utter_handoff
-- handoff:
-    triggers: utter_whoami
-...
-responses:
-  utter_handoff: 
-  - text: /handoff
-  utter_whoami:
-  - text: Hi! I'm your <Helpdesk/Financial/etc> Assistant!
-```
-> Chatroom will read the bot message `/handoff` and switch from listening on the `host` to `handoffhost`, 
-> or vice-versa if you already did it once.
-> 
-> Run two rasa bots locally with `rasa run --port <port> --enable-api --cors "*"`.
-> Run one bot at port 5005 and another at port 5006 (or change the ports below)
-> 
-> Save the snippet below to `chatroomhandoff.html` (or whatever you want to call it):
-```html
-<head>
-  <link rel="stylesheet" href="http://127.0.0.1:8080/dist/Chatroom.css" />
-</head>
-<body>
-  <div class="chat-container"></div>
-
-  <script src="http://127.0.0.1:8080/dist/Chatroom.js"/></script>
-  <script type="text/javascript">
-    var chatroom = new window.Chatroom({
-      host: "http://localhost:5005",
-      title: "Handoff Assistant Demo",
-      container: document.querySelector(".chat-container"),
-      welcomeMessage: "Hi, how may I help you?"
-      // speechRecognition: "en-US",
-      // voiceLang: "en-US"
-    });
-    chatroom.openChat();
-  </script>
-</body>
-```
-
-> Open `chatroomhandoff.html` in your browser.
-> 
-> To switch bots, send `/handoff`.
-
+> This fork is under development to enable handing off from one bot to another.
+> You will need to build chatroom locally to use this capability
 
 # React-based Chatroom Component for Rasa Stack
 
@@ -76,18 +21,19 @@ responses:
 * Demo mode included (ideal for scripted screencasts)
 * Hosted on S3 for easy use
 * Simple setup. Works with Rasa's [REST channel](https://rasa.com/docs/rasa/user-guide/connectors/your-own-website/#rest-channels)
+* [Handoff to another bot/host](#setting-up-handoff-capability)
 
 ## Usage
-1. Embed the `chatroom.js` in the HTML of your website and configure it to connect to your Rasa bot. Either use the S3 hosted version or build it yourself. (see below)
+1. Embed the `chatroom.js` in the HTML of your website and configure it to connect to your Rasa bot. Either use the S3 hosted version or build it yourself. (see below) You will have to build it yourself to use the handoff capability
 
 ```html
 <head>
-  <link rel="stylesheet" href="https://npm-scalableminds.s3.eu-central-1.amazonaws.com/@scalableminds/chatroom@master/dist/Chatroom.css" />
+  <link rel="stylesheet" href="http://127.0.0.1:8080/dist/Chatroom.css" />
 </head>
 <body>
   <div class="chat-container"></div>
 
-  <script src="https://npm-scalableminds.s3.eu-central-1.amazonaws.com/@scalableminds/chatroom@master/dist/Chatroom.js"/></script>
+  <script src="http://127.0.0.1:8080/dist/Chatroom.js"/></script>
   <script type="text/javascript">
     var chatroom = new window.Chatroom({
       host: "http://localhost:5005",
@@ -122,6 +68,88 @@ Note, the version of the Chatroom's Javascript file is encoded in the URL. `chat
 | 0.7.8 (Deprecated)| 0.10.4+                      |
 
 Note, versions prior to `0.10.x` used a custom Python channel to connect the chatroom frontend with a Rasa bot backend. Upgrading, from version `0.9.x` or below will require you to modify the `credentials.yml` and include the Rasa REST channel. (see installation instructions above)
+
+## Setting up handoff capability
+
+This version of chatroom will switch hosts on demand when it receives a bot message with `handoff_host` given in a custom json payload in a bot message. You could use this either for a human handoff (you'd need to configure whichever channel the human was chatting on seperately) or a
+handoff to another bot. The examples below assume handoff to another bot.
+
+### Chatroom configuration for handoff
+
+If you're happy with the defaults described below, no configuration of chatroom is required to make this work, but you will need to configure
+your bot(s) to send and handle the expected handoff messages.
+ 
+The payload that will trigger a handoff can also include the title of the chat window for the new host (this is optional):
+```
+{
+  "handoff_host":"http://localhost:5006",
+  "title": "Handoff Bot"
+}
+```
+
+By default, chatroom will send the following message to the handoff host upon receiving the handoff payload:
+
+```
+/handoff{"from_host":"<original host url>"}
+```
+
+You can configure which intent is sent to the handoff host by setting `handoffIntent` in the properties. e.g.
+
+```
+    var chatroom = new window.Chatroom({
+...
+      handoffIntent: "handoff_other",
+...
+    });
+```
+
+Regardless of the intent, `{"from_host":"<original host url>"}` will still be passed along with it.
+
+### Bot configuration for handoff
+
+To trigger a handoff from a bot, the bot needs to send a message with the payload specified above.
+This could be sent from a custom action in a Rasa bot e.g.
+```
+    dispatcher.utter_message(json_message = {
+        "handoff_host": "http://localhost:5006",
+        "title": "Handoff Bot"
+        })
+```
+
+or sent from a response template i.e. in `domain.yml`
+```
+responses:
+  utter_handoff:
+    custom:
+      handoff_host: "http://localhost:5006"
+      title: "Handoff Bot"
+```
+
+You should also make sure there is defined behaviour for whichever `handoffIntent` you define, so that the first response from the bot 
+after handoff isn't a fallback or out of scope response.
+
+You don't have to do anything with the `from_host` entity that is passed unless you want to. You would want to set a slot with it if any behaviour in your bot depends
+on whether a handoff has occurred or from where a handoff occurred.
+
+A minimal example setup for handoff from a Rasa bot would look as follows in `domain.yml`:
+
+```
+intents:
+- trigger_handoff:
+    triggers: utter_handoff
+- handoff:
+    triggers: utter_welcome
+responses:
+  utter_handoff:
+    custom:
+      handoff_host: "http://localhost:5006"
+      title: "Handoff Bot"
+  utter_welcome:
+    text: Welcome! I'm <bot description here>
+```
+
+Then if you were to enter something classified as `/trigger_handoff` in chatroom, the host would switch to `http://localhost:5006`.
+
 
 
 ## Development
