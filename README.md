@@ -1,5 +1,7 @@
 > This fork is under development to enable handing off from one bot to another.
 > You will need to build chatroom locally to use this capability
+> see section "[Handoff to another bot/host](#setting-up-handoff-capability)"
+
 
 # React-based Chatroom Component for Rasa Stack
 
@@ -148,7 +150,7 @@ responses:
     text: Welcome! I'm <bot description here>
 ```
 
-Then if you were to enter something classified as `/trigger_handoff` in chatroom, the host would switch to `http://localhost:5006`.
+Then if you were to enter  `/trigger_handoff` or something that got classified as such in chatroom, the host would switch to `http://localhost:5006`.
 
 
 
