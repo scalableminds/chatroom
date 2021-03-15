@@ -53,7 +53,7 @@ rest:
 
 Restart your Rasa server. Depending on your setup you might need to add CORS headers, e.g. `--cors "*"`.
 
-´´´
+```
 rasa run --credentials ./credentials.yml  --enable-api --auth-token XYZ123 --model ./models --endpoints ./endpoints.yml --cors "*"
 ```
 
