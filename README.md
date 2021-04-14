@@ -62,7 +62,7 @@ Note, the version of the Chatroom's Javascript file is encoded in the URL. `chat
 
 | Chatroom Version  | Compatible Rasa Core Version |
 |-------------------|------------------------------|
-| 0.10.x            | 1.0                          |
+| 0.10.x            | 1.0 - 2.x                    |
 | 0.9.x (Deprecated)| 0.11.4+, 0.13.7              |
 | 0.8.x (Deprecated)| 0.11.4+                      |
 | 0.7.8 (Deprecated)| 0.10.4+                      |
