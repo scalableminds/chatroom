@@ -34,13 +34,30 @@ type MessageProps = {
 
 const supportSpeechSynthesis = () => "SpeechSynthesisUtterance" in window;
 
-const speak = (message: string, voiceLang: string) => {
+const getVoices = () => new Promise(resolve => {
+  let voices = speechSynthesis.getVoices();
+  if (voices.length) {
+    resolve(voices);
+    return;
+  }
+  speechSynthesis.onvoiceschanged = () => {
+    voices = speechSynthesis.getVoices();
+    resolve(voices);
+  }
+});
+
+
+const speak = async (message: string, voiceLang: string) => {
   const synth = window.speechSynthesis;
-  let voices = [];
-  voices = synth.getVoices();
+  const voices = await getVoices();
   const toSpeak = new SpeechSynthesisUtterance(message);
-  toSpeak.voice = voices.find(voice => voice.lang === voiceLang);
-  synth.speak(toSpeak);
+  const desiredVoice = voices.find(voice => voice.lang === voiceLang);
+  if (desiredVoice) {
+    toSpeak.voice = desiredVoice;
+    return synth.speak(toSpeak);
+  }
+  toSpeak.voice = voices[0];
+  return synth.speak(toSpeak);
 };
 
 const Message = ({ chat, onButtonClick, voiceLang = null }: MessageProps) => {
