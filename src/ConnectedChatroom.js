@@ -14,6 +14,7 @@ type ConnectedChatroomProps = {
   waitingTimeout: number,
   speechRecognition: ?string,
   messageBlacklist: Array<string>,
+  handoffIntent: string,
   fetchOptions?: RequestOptions,
   voiceLang: ?string
 };
@@ -21,7 +22,9 @@ type ConnectedChatroomState = {
   messages: Array<ChatMessage>,
   messageQueue: Array<ChatMessage>,
   isOpen: boolean,
-  waitingForBotResponse: boolean
+  waitingForBotResponse: boolean,
+  currenthost: string,
+  currenttitle: string
 };
 
 type RasaMessage =
@@ -32,7 +35,8 @@ type RasaMessage =
       text?: string
     |}
   | {| sender_id: string, image: string, text?: string |}
-  | {| sender_id: string, attachment: string, text?: string |};
+  | {| sender_id: string, attachment: string, text ?: string |}
+  | {| sender_id: string, custom: string, text?: string |};
 
 export default class ConnectedChatroom extends Component<
   ConnectedChatroomProps,
@@ -42,14 +46,19 @@ export default class ConnectedChatroom extends Component<
     messages: [],
     messageQueue: [],
     isOpen: false,
-    waitingForBotResponse: false
+    waitingForBotResponse: false,
+    currenthost: `${this.props.host}`,
+    currenttitle: `${this.props.title}`
   };
 
   static defaultProps = {
     waitingTimeout: 5000,
-    messageBlacklist: ["_restart", "_start", "/restart", "/start"]
+    messageBlacklist: ["_restart", "_start", "/restart", "/start"],
+    handoffIntent: "handoff"
   };
 
+  handoffpayload = `\\/(${this.props.handoffIntent})\\b.*`;
+  handoffregex = new RegExp( this.handoffpayload );
   waitingForBotResponseTimer: ?TimeoutID = null;
   messageQueueInterval: ?IntervalID = null;
   chatroomRef = React.createRef<Chatroom>();
@@ -93,7 +102,7 @@ export default class ConnectedChatroom extends Component<
       uuid: uuidv4()
     };
 
-    if (!this.props.messageBlacklist.includes(messageText)) {
+    if (!this.props.messageBlacklist.includes(messageText) && !messageText.match(this.handoffregex)) {
       this.setState({
         // Reveal all queued bot messages when the user sends a new message
         messages: [
@@ -127,7 +136,7 @@ export default class ConnectedChatroom extends Component<
     }, this.props.fetchOptions);
 
     const response = await fetch(
-      `${this.props.host}/webhooks/rest/webhook`,
+      `${this.state.currenthost}/webhooks/rest/webhook`,
       fetchOptions
     );
     const messages = await response.json();
@@ -149,7 +158,7 @@ export default class ConnectedChatroom extends Component<
   }
 
   async parseMessages(RasaMessages: Array<RasaMessage>) {
-    const validMessageTypes = ["text", "image", "buttons", "attachment"];
+    const validMessageTypes = ["text", "image", "buttons", "attachment", "custom"];
 
     let expandedMessages = [];
 
@@ -184,6 +193,21 @@ export default class ConnectedChatroom extends Component<
         expandedMessages.push(
           this.createNewBotMessage({ type: "text", text: message.attachment })
         );
+      }
+
+      if (message.custom && message.custom.handoff_host) {
+        validMessage = true;
+        this.setState({
+          currenthost: message.custom.handoff_host
+        });
+        if (message.custom.title) {
+          this.setState({
+            currenttitle: message.custom.title
+          })
+        }
+        console.log(`switching to ${message.custom.handoff_host}`);
+        this.sendMessage(`/${this.props.handoffIntent}{"from_host":"${this.props.host}"}`);
+        return;
       }
 
       if (validMessage === false)
@@ -237,15 +261,16 @@ export default class ConnectedChatroom extends Component<
     const renderableMessages = messages
       .filter(
         message =>
-          message.message.type !== "text" ||
-          !this.props.messageBlacklist.includes(message.message.text)
+          message.message.type !== "text" || (
+          !this.props.messageBlacklist.includes(message.message.text) &&
+          !message.message.text.match(this.handoffregex) )
       )
       .sort((a, b) => a.time - b.time);
 
     return (
       <Chatroom
         messages={renderableMessages}
-        title={this.props.title}
+        title={this.state.currenttitle}
         waitingForBotResponse={waitingForBotResponse}
         isOpen={this.state.isOpen}
         speechRecognition={this.props.speechRecognition}
@@ -254,6 +279,7 @@ export default class ConnectedChatroom extends Component<
         onSendMessage={this.sendMessage}
         ref={this.chatroomRef}
         voiceLang={this.props.voiceLang}
+        host={this.state.currenthost}
       />
     );
   }
