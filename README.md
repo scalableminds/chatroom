@@ -4,6 +4,8 @@
 
 <a href="https://npm-scalableminds.s3.eu-central-1.amazonaws.com/@scalableminds/chatroom@master/demo.html"><img src="https://npm-scalableminds.s3.amazonaws.com/%40scalableminds/chatroom/demo.gif" alt="Demo" width="409" height="645" /></a>
 
+**Note: This project is not maintained anymore. If you like to become a community maintainer get in touch with @hotzenklotz. It may still work for your project or serve as a point of reference for others.**
+
 [Watch a demo of our Chatroom in action](https://npm-scalableminds.s3.eu-central-1.amazonaws.com/@scalableminds/chatroom@master/demo.html)
 
 ## Features
